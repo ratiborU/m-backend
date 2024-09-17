@@ -92,7 +92,7 @@ class PersonController {
             activationLink: activationLink
         });
 
-        const tokens = generateJwtAccessAndRefresh(person.dataValues.id, email, role);
+        const tokens = generateJwtAccessAndRefresh(person.dataValues.id, person.dataValues.email, person.dataValues.role);
         res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
         return res.json({ tokens });
         // return res.json({tokens: ''});
@@ -108,7 +108,7 @@ class PersonController {
         if (!comparePassword) {
             return next(ApiError.badRequest('Неверно указан логин или пароль'));
         }
-        const tokens = generateJwtAccessAndRefresh(person.dataValues.id, person.dataValues,email, person.dataValues.role);
+        const tokens = generateJwtAccessAndRefresh(person.dataValues.id, person.dataValues.email, person.dataValues.role);
         res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
         return res.json({ tokens });
     }
@@ -135,7 +135,14 @@ class PersonController {
     }
 
     async refresh(req, res, next) {
-        return res.json('');
+        const { refreshToken } = req.body;
+        if (!refreshToken) {
+            next(ApiError.unauthorized('Пользователь не авторизован'));
+        }
+        const {id, email, role} = jwt.verify(refreshToken, process.env.SECRET_KEY);
+        const tokens = generateJwtAccessAndRefresh(id, email, role);
+        res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+        return res.json({ tokens });
     }
 
     async auth(req, res, next) {
