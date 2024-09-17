@@ -9,7 +9,9 @@ const Person = sequelize.define('person', {
     email: {type: DataTypes.STRING, unique: true, allowNull: false},
     phoneNumber: {type: DataTypes.STRING, unique: true},
     password: {type: DataTypes.STRING},
-    role: {type: DataTypes.STRING, defaultValue: "PERSON"}
+    role: {type: DataTypes.STRING, defaultValue: "PERSON"},
+    isActivated: {type: DataTypes.BOOLEAN, defaultValue: false},
+    activationLink: {type: DataTypes.STRING},
 });
 
 const Product = sequelize.define('product', {

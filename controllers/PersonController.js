@@ -2,17 +2,32 @@ import ApiError from "../error/ApiError.js";
 import { Person } from "../models/models.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import { v4 as uuidv4 } from 'uuid';
+import nodemailer from "nodemailer";
+import { validationResult } from "express-validator";
 
-const generateJwt = (id, email, role) => {
+const generateJwt = (id, email, role, time) => {
     return jwt.sign(
         { id, email, role }, 
         process.env.SECRET_KEY,
-        {expiresIn: '24h'}
+        {expiresIn: time}
     )
+}
+
+const generateJwtAccessAndRefresh = (id, email, role) => {
+    return ({
+        accessToken: generateJwt(id, email, role, '30m'),
+        refreshToken: generateJwt(id, email, role, '30d'),
+    })
 }
 
 class PersonController {
     async registration(req, res, next) {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            // добавит массив ошибок
+            return next(ApiError.badRequest('Ошибка при валидации'));
+        }
         const { 
             firstName, 
             secondName, 
@@ -32,8 +47,39 @@ class PersonController {
             return next(ApiError.badRequest('Пользователь с таким email уже существует'));
         }
         const hashedPassword = await bcrypt.hash(password, 4);
-        
-        console.log(hashedPassword);
+        const activationLink = uuidv4();
+        const fullActivationLink = `http://localhost:5000/api/persons/activate/${activationLink}`;
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail', // Use Gmail as the email service
+            auth: {
+                user: process.env.MAIL_USER, // Your Gmail email address
+                pass: process.env.MAIL_APP_PASS // Your Gmail password
+            }
+        });
+
+        const mailOptions = {
+            from: process.env.MAIL_USER, // Sender's email address
+            to: email, // Recipient's email address
+            subject: 'Подтверждение почты', // Subject line
+            text: '', // Plain text body
+            // потом сделать красивую обложку (адаптивную)
+            html: 
+                `
+                    <div>
+                        <h1>Для активации аккаунта перейдите по ссылке</h1>
+                        <a href="${fullActivationLink}">Подтвердить адрес электронной почты</a>
+                    </div>
+                `
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.log(error);
+            } else {
+                console.log('Email sent: ' + info.response);
+            }
+        });
 
         const person = await Person.create({
             firstName, 
@@ -42,97 +88,105 @@ class PersonController {
             email, 
             phoneNumber, 
             password: hashedPassword, 
-            role
+            role,
+            activationLink: activationLink
         });
 
-        const token = generateJwt(person.dataValues.id, email, role);
-    
-        return res.json({token});
+        const tokens = generateJwtAccessAndRefresh(person.dataValues.id, email, role);
+        res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+        return res.json({ tokens });
+        // return res.json({tokens: ''});
     }
 
     async login(req, res, next) {
         const { email, password } = req.body;
         const person = await Person.findOne({ where: { email } });
-        // Сделать так чтобы было непонятно неверный логин или пароль
         if (!person) {
-            return next(ApiError.badRequest('Пользоатель с таким email не найден'));
+            return next(ApiError.badRequest('Неверно указан логин или пароль'));
         }
         let comparePassword = bcrypt.compareSync(password, person.dataValues.password)
         if (!comparePassword) {
-            return next(ApiError.badRequest('Указан неверный пароль'));
+            return next(ApiError.badRequest('Неверно указан логин или пароль'));
         }
-        const token = generateJwt(person.dataValues.id, person.dataValues,email, person.dataValues.role);
-        return res.json({ token });
+        const tokens = generateJwtAccessAndRefresh(person.dataValues.id, person.dataValues,email, person.dataValues.role);
+        res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+        return res.json({ tokens });
+    }
+
+    // а она нужна вообще, лучше сделать на фронте
+    async logout(req, res, next) {
+        res.clearCookie('refreshToken');
+        return res.json('Вы успешно вышли');
+    }
+
+    async activate(req, res, next) {
+        const { link } = req.params;
+        const person = await Person.findOne({where: {activationLink: link}});
+        if (!person) {
+            return next(ApiError.badRequest('Некорректная ссылка активации'));
+        }
+        await Person.update({
+            isActivated: true,
+        }, {
+            where: { id: person.dataValues.id }
+        });
+        const updatedPerson = await Person.findOne({where: { id: person.dataValues.id }});
+        return res.redirect('http://localhost:5000/api/persons/');
+    }
+
+    async refresh(req, res, next) {
+        return res.json('');
     }
 
     async auth(req, res, next) {
         const { id, email, role } = req.person;
-        const token = generateJwt(id, email, role);
+        const token = generateJwt(id, email, role, '30m');
         res.json({ token });
     }
 
     async getAll(req, res) {
-        res.json('ok');
+        const persons = await Person.findAll();
+        return res.json(persons);
     }
 
     async getOne(req, res) {
-
+        const { id } = req.params;
+        const person = await Person.findByPk(id);
+        return res.json(person);
     }
 
     async update(req, res) {
-
+        const { 
+            id, 
+            firstName, 
+            secondName, 
+            fatherName, 
+            email, 
+            phoneNumber, 
+            isActivated,
+            activationLink
+        } = req.body;
+        const person = await Person.update({
+            firstName, 
+            secondName, 
+            fatherName, 
+            email, 
+            phoneNumber, 
+            isActivated,
+            activationLink
+        }, {
+            where: { id: id }
+        });
+        return res.json(person);
     }
 
     async delete(req, res) {
-
+        const { id } = req.params;
+        const person = await Person.destroy({
+            where: { id: id }
+        });
+        return res.json(person);
     }
 }
 
 export default new PersonController();
-
-
-// import {pool} from "../db.js";
-
-// class PersonController {
-//     async create(req, res) {
-//         const {
-//             firstName, 
-//             secondName, 
-//             fatherName, 
-//             email, 
-//             phoneNumber, 
-//             password
-//         } = req.body;
-//         const newPerson = await pool.query(
-//             `INSERT INTO person (firstName, secondName, fatherName, email, phoneNumber, hashedPassword) values ($1, $2, $3, $4, $5, $6) RETURNING *`, 
-//             [firstName, secondName, fatherName, email, phoneNumber, password]
-//         );
-//         res.json(newPerson.rows[0]);
-//     }
-
-//     async getAll(req, res) {
-//         const users = await pool.query(`SELECT * FROM person`);
-//         res.json(users.rows);
-//     }
-
-//     async getOne(req, res) {
-//         const id = req.params.id;
-//         const user = await pool.query(`SELECT * FROM person where id = $1`, [id]);
-//         res.json(user.rows[0]);
-//     }
-
-//     // допилить
-//     async update(req, res) {
-//         const {id, firstName, secondName, fatherName, email, phoneNumber, password} = req.body;
-//         const user = await pool.query(`UPDATE person set firstname = $1 where id = $2 RETURNING *`, [firstName, id]);
-//         res.json(user.rows[0]);
-//     }
-
-//     async delete(req, res) {
-//         const id = req.params.id;
-//         const user = await pool.query(`DELETE FROM person where id = $1`, [id]);
-//         res.json(user.rows[0]);
-//     }
-// }
-
-// export default new PersonController();
