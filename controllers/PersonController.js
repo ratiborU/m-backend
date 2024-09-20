@@ -92,9 +92,12 @@ class PersonController {
             activationLink: activationLink
         });
 
-        const tokens = generateJwtAccessAndRefresh(person.dataValues.id, person.dataValues.email, person.dataValues.role);
-        res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
-        return res.json({ tokens });
+        // объединить регистрация с логином
+        // или сделать это на фронте
+
+        // const tokens = generateJwtAccessAndRefresh(person.dataValues.id, person.dataValues.email, person.dataValues.role);
+        // res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+        return res.json({ tokens: '' });
         // return res.json({tokens: ''});
     }
 
@@ -103,6 +106,9 @@ class PersonController {
         const person = await Person.findOne({ where: { email } });
         if (!person) {
             return next(ApiError.badRequest('Неверно указан логин или пароль'));
+        }
+        if (!person.dataValues.isActivated) {
+            return next(ApiError.unauthorized('Ваш аккаунт еще не был активирован через почту'));
         }
         let comparePassword = bcrypt.compareSync(password, person.dataValues.password)
         if (!comparePassword) {
@@ -131,7 +137,7 @@ class PersonController {
             where: { id: person.dataValues.id }
         });
         const updatedPerson = await Person.findOne({where: { id: person.dataValues.id }});
-        return res.redirect('http://localhost:5000/api/persons/');
+        return res.redirect(process.env.CLIENT_URL);
     }
 
     async refresh(req, res, next) {

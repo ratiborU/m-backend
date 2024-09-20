@@ -7,7 +7,7 @@ const Person = sequelize.define('person', {
     secondName: {type: DataTypes.STRING, allowNull: false},
     fatherName: {type: DataTypes.STRING},
     email: {type: DataTypes.STRING, unique: true, allowNull: false},
-    phoneNumber: {type: DataTypes.STRING, unique: true},
+    phoneNumber: {type: DataTypes.STRING}, // сделать уникальным или вообще убрать
     password: {type: DataTypes.STRING},
     role: {type: DataTypes.STRING, defaultValue: "PERSON"},
     isActivated: {type: DataTypes.BOOLEAN, defaultValue: false},
