@@ -67,6 +67,29 @@ class AuthService {
         console.log(tokens);
         return tokens;
     }
+
+    async activate(link) {
+        const person = await Person.findOne({where: {activationLink: link}});
+        if (!person) {
+            throw ApiError.badRequest('Некорректная ссылка активации');
+        }
+        await Person.update({
+            isActivated: true,
+        }, {
+            where: { id: person.dataValues.id }
+        });
+        // какая-то ошибка с редиректом
+        return person;
+    }
+
+    async refresh(refreshToken) {
+        if (!refreshToken) {
+            throw ApiError.unauthorized('Пользователь не авторизован');
+        }
+        const {id, email, role} = jwt.verify(refreshToken, process.env.SECRET_KEY);
+        const tokens = TokenService.generateJwtAccessAndRefresh({id, email, role});
+        return tokens;
+    }
 }
 
 export default new AuthService;

@@ -56,30 +56,32 @@ class PersonController {
     }
 
     async activate(req, res, next) {
-        const { link } = req.params;
-        const person = await Person.findOne({where: {activationLink: link}});
-        if (!person) {
-            return next(ApiError.badRequest('Некорректная ссылка активации'));
+        try {
+            const { link } = req.params;
+            await AuthService.activate(link);
+            return res.redirect(process.env.CLIENT_URL);
+        } catch (error) {
+            return next(error);
         }
-        await Person.update({
-            isActivated: true,
-        }, {
-            where: { id: person.dataValues.id }
-        });
-        const updatedPerson = await Person.findOne({where: { id: person.dataValues.id }});
-        // какая-то ошибка с редиректом
-        return res.redirect(process.env.CLIENT_URL);
     }
 
     async refresh(req, res, next) {
-        const { refreshToken } = req.body;
-        if (!refreshToken) {
-            next(ApiError.unauthorized('Пользователь не авторизован'));
+        try {
+            const { refreshToken } = req.body;
+            const tokens = await AuthService.refresh(refreshToken);
+            res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+            return res.json({ tokens });
+        } catch (error) {
+            return next(error);
         }
-        const {id, email, role} = jwt.verify(refreshToken, process.env.SECRET_KEY);
-        const tokens = generateJwtAccessAndRefresh(id, email, role);
-        res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
-        return res.json({ tokens });
+        // const { refreshToken } = req.body;
+        // if (!refreshToken) {
+        //     next(ApiError.unauthorized('Пользователь не авторизован'));
+        // }
+        // const {id, email, role} = jwt.verify(refreshToken, process.env.SECRET_KEY);
+        // const tokens = generateJwtAccessAndRefresh(id, email, role);
+        // res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+        // return res.json({ tokens });
     }
 
     async auth(req, res, next) {
