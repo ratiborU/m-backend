@@ -137,6 +137,7 @@ class PersonController {
             where: { id: person.dataValues.id }
         });
         const updatedPerson = await Person.findOne({where: { id: person.dataValues.id }});
+        // какая-то ошибка с редиректом
         return res.redirect(process.env.CLIENT_URL);
     }
 
