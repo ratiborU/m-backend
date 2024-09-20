@@ -6,6 +6,8 @@ import { v4 as uuidv4 } from 'uuid';
 import nodemailer from "nodemailer";
 import { validationResult } from "express-validator";
 
+import AuthService from "../services/AuthService.js";
+
 const generateJwt = (id, email, role, time) => {
     return jwt.sign(
         { id, email, role }, 
@@ -23,82 +25,16 @@ const generateJwtAccessAndRefresh = (id, email, role) => {
 
 class PersonController {
     async registration(req, res, next) {
-        const errors = validationResult(req);
-        if (!errors.isEmpty()) {
-            // добавит массив ошибок
-            return next(ApiError.badRequest('Ошибка при валидации'));
-        }
-        const { 
-            firstName, 
-            secondName, 
-            fatherName, 
-            email, 
-            phoneNumber, 
-            password, 
-            role 
-        } = req.body;
-
-        // полноценная валидация
-        if (!email || !password) {
-            return next(ApiError.badRequest('Некоректный email или пароль'));
-        }
-        const candidate = await Person.findOne({ where: { email } });
-        if (candidate) {
-            return next(ApiError.badRequest('Пользователь с таким email уже существует'));
-        }
-        const hashedPassword = await bcrypt.hash(password, 4);
-        const activationLink = uuidv4();
-        const fullActivationLink = `http://localhost:5000/api/persons/activate/${activationLink}`;
-
-        const transporter = nodemailer.createTransport({
-            service: 'gmail', // Use Gmail as the email service
-            auth: {
-                user: process.env.MAIL_USER, // Your Gmail email address
-                pass: process.env.MAIL_APP_PASS // Your Gmail password
+        try {
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return next(ApiError.badRequest('Ошибка при валидации'));
             }
-        });
-
-        const mailOptions = {
-            from: process.env.MAIL_USER, // Sender's email address
-            to: email, // Recipient's email address
-            subject: 'Подтверждение почты', // Subject line
-            text: '', // Plain text body
-            // потом сделать красивую обложку (адаптивную)
-            html: 
-                `
-                    <div>
-                        <h1>Для активации аккаунта перейдите по ссылке</h1>
-                        <a href="${fullActivationLink}">Подтвердить адрес электронной почты</a>
-                    </div>
-                `
-        };
-
-        transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-                console.log(error);
-            } else {
-                console.log('Email sent: ' + info.response);
-            }
-        });
-
-        const person = await Person.create({
-            firstName, 
-            secondName, 
-            fatherName, 
-            email, 
-            phoneNumber, 
-            password: hashedPassword, 
-            role,
-            activationLink: activationLink
-        });
-
-        // объединить регистрация с логином
-        // или сделать это на фронте
-
-        // const tokens = generateJwtAccessAndRefresh(person.dataValues.id, person.dataValues.email, person.dataValues.role);
-        // res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
-        return res.json({ tokens: '' });
-        // return res.json({tokens: ''});
+            const activationLink = await AuthService.registration(req.body);
+            return res.json(activationLink);
+        } catch (error) {
+            return next(ApiError.internal(error));
+        }
     }
 
     async login(req, res, next) {
@@ -137,6 +73,7 @@ class PersonController {
             where: { id: person.dataValues.id }
         });
         const updatedPerson = await Person.findOne({where: { id: person.dataValues.id }});
+        // какая-то ошибка с редиректом
         return res.redirect(process.env.CLIENT_URL);
     }
 
