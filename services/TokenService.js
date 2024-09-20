@@ -1,3 +1,5 @@
+import jwt from "jsonwebtoken";
+
 class TokenService {
     async generateToken(params, time) {
         return jwt.sign(
@@ -7,10 +9,10 @@ class TokenService {
         )
     }
 
-    async generateJwtAccessAndRefresh(params, time) { //id, email, role
+    async generateJwtAccessAndRefresh(params) { //id, email, role
         return ({
-            accessToken: generateToken(params, '30m'),
-            refreshToken: generateToken(params, '30d'),
+            accessToken: await this.generateToken(params, '30m'),
+            refreshToken: await this.generateToken(params, '30d'),
         })
     }
 }

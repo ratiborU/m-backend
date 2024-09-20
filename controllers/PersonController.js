@@ -33,26 +33,20 @@ class PersonController {
             const activationLink = await AuthService.registration(req.body);
             return res.json(activationLink);
         } catch (error) {
-            return next(ApiError.internal(error));
+            return next(error);
         }
     }
 
     async login(req, res, next) {
-        const { email, password } = req.body;
-        const person = await Person.findOne({ where: { email } });
-        if (!person) {
-            return next(ApiError.badRequest('Неверно указан логин или пароль'));
+        try {
+            const { email, password } = req.body;
+            const tokens = await AuthService.login(email, password);
+            // console.log(tokens);
+            res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+            return res.json({ tokens });
+        } catch (error) {
+            return next(error);
         }
-        if (!person.dataValues.isActivated) {
-            return next(ApiError.unauthorized('Ваш аккаунт еще не был активирован через почту'));
-        }
-        let comparePassword = bcrypt.compareSync(password, person.dataValues.password)
-        if (!comparePassword) {
-            return next(ApiError.badRequest('Неверно указан логин или пароль'));
-        }
-        const tokens = generateJwtAccessAndRefresh(person.dataValues.id, person.dataValues.email, person.dataValues.role);
-        res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
-        return res.json({ tokens });
     }
 
     // а она нужна вообще, лучше сделать на фронте
