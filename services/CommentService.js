@@ -50,11 +50,10 @@ class CommentService {
         const comment = await Comment.findByPk(id);
         await ProductService.add(productId, rate);
         await ProductService.removeRate(productId, comment.dataValues.rate);
-        await Comment.update({
-            id, text, rate, personId, productId
-        }, {
-            where: { id }
-        });
+        await Comment.update(
+            {id, text, rate, personId, productId}, 
+            {where: { id }}
+        );
         const updatedComment = await Comment.findByPk(id)
         return updatedComment;
     }
@@ -62,9 +61,7 @@ class CommentService {
     async delete(id) {
         const comment = await Comment.findByPk(id);
         await ProductService.removeRate(comment.dataValues.productId, comment.dataValues.rate);
-        await Comment.destroy({
-            where: { id }
-        });
+        await Comment.destroy({where: { id }});
         return comment;
     }
 }

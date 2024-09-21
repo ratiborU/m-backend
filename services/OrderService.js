@@ -1,24 +1,47 @@
-import { Order } from "../models/models";
+import { Order } from "../models/models.js";
 
 class OrderService {
     async create(params) {
-
+        // нужно удалять продукты из basket и создавать их в order
+        // возжможно стоит добавить строку с перечислением всех товаров в модель Order
+        // не удаляя при этом OrderProduct
+        // может быть стоит отправлять уведомление на почту 
+        // о том что пришел заказ
+        const { price, address, comment, status, personId } = params;
+        const order = await Order.create({price, address, comment, status, personId});
+        return order;
     }
 
     async getAll() {
-        
+        const orders = await Order.findAll();
+        return orders;
     }
 
     async getOne(id) {
-        
+        const order = await Order.findByPk(id);
+        return order;
+    }
+
+    async getAllByPersonId(personId) {
+        const orders = await Order.findAll({where: {personId}});
+        return orders;
     }
 
     async update(params) {
-        
+        const { id, price, address, comment, status, personId } = params;
+        await Order.update(
+            {price, address, comment, status, personId}, 
+            {where: {id}}
+        );
+        const updatedOrder = await Order.findByPk(id);
+        return updatedOrder;
     }
 
+    // очень опасная функция
     async delete(id) {
-        
+        const order = await Order.findByPk(id);
+        await Order.destroy({where: {id}})
+        return order;
     }
 }
 
