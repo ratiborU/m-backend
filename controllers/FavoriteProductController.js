@@ -1,22 +1,42 @@
 class FavoriteProductController {
-    async create(req, res) {
-
+    async create(req, res, next) {
+        try {
+            
+        } catch (error) {
+            next(error);
+        }
     }
 
-    async getAll(req, res) {
-
+    async getAll(req, res, next) {
+        try {
+            
+        } catch (error) {
+            next(error);
+        }
     }
 
-    async getOne(req, res) {
-
+    async getOne(req, res, next) {
+        try {
+            
+        } catch (error) {
+            next(error);
+        }
     }
 
-    async update(req, res) {
-
+    async update(req, res, next) {
+        try {
+            
+        } catch (error) {
+            next(error);
+        }
     }
 
-    async delete(req, res) {
-
+    async delete(req, res, next) {
+        try {
+            
+        } catch (error) {
+            next(error);
+        }
     }
 }
 

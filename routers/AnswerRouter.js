@@ -1,13 +1,12 @@
 import { Router } from "express";
 import AnswerController from "../controllers/AnswerController.js";
 
-const imageRouter = new Router();
+const answerRouter = new Router();
 
-imageRouter.post('', AnswerController.create);
-imageRouter.get('', AnswerController.getAll);
-imageRouter.get('/getAllByCommentId/:id', AnswerController.getAllByCommentId);
-imageRouter.get('/:id', AnswerController.getOne);
-imageRouter.put('/', AnswerController.update);
-imageRouter.delete('/:id', AnswerController.delete);
+answerRouter.post('', AnswerController.create);
+answerRouter.get('', AnswerController.getAll);
+answerRouter.get('/:id', AnswerController.getOne);
+answerRouter.put('/', AnswerController.update);
+answerRouter.delete('/:id', AnswerController.delete);
 
-export default imageRouter;
+export default answerRouter;

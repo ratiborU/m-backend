@@ -79,7 +79,7 @@ class AuthService {
             where: { id: person.dataValues.id }
         });
         // какая-то ошибка с редиректом
-        return person;
+        return {message: "активация прошла успешно"};
     }
 
     async refresh(refreshToken) {

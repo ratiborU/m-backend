@@ -25,7 +25,7 @@ class ProductService {
         page = page || 1;
         limit = limit || 16;
         let offset = (page - 1) * limit;
-        const products = await Product.findAndCountAll({limit: limit, offset: offset});
+        const products = await Product.findAndCountAll({limit, offset});
         return products;
     }
 
@@ -44,7 +44,7 @@ class ProductService {
             rate, 
             commentsCount 
         } = params;
-        const product = await Product.update({
+        await Product.update({
             title, 
             description, 
             characteristics, 
@@ -54,8 +54,11 @@ class ProductService {
         }, {
             where: { id }
         });
+        const updatedProduct = await Product.findByPk(id)
+        return updatedProduct;
     }
 
+    // возможно стоит перенести эти методы в CommentService
     async addRate(id, rate) {
         const product = await Product.findByPk(id);
         const updatedRate = (product.dataValues.rate * product.dataValues.commentsCount + Number(rate)) / (product.dataValues.commentsCount + 1)
