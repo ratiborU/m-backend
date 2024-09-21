@@ -14,6 +14,7 @@ const Person = sequelize.define('person', {
     activationLink: {type: DataTypes.STRING},
 });
 
+// возможно нужно добавить ссылку на главное изображение товара
 const Product = sequelize.define('product', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},
     title: {type: DataTypes.STRING, allowNull: false},
