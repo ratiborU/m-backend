@@ -7,6 +7,7 @@ import nodemailer from "nodemailer";
 import { validationResult } from "express-validator";
 
 import AuthService from "../services/AuthService.js";
+import PersonService from "../services/PersonService.js";
 
 const generateJwt = (id, email, role, time) => {
     return jwt.sign(
@@ -74,14 +75,6 @@ class PersonController {
         } catch (error) {
             return next(error);
         }
-        // const { refreshToken } = req.body;
-        // if (!refreshToken) {
-        //     next(ApiError.unauthorized('Пользователь не авторизован'));
-        // }
-        // const {id, email, role} = jwt.verify(refreshToken, process.env.SECRET_KEY);
-        // const tokens = generateJwtAccessAndRefresh(id, email, role);
-        // res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
-        // return res.json({ tokens });
     }
 
     async auth(req, res, next) {
@@ -90,48 +83,43 @@ class PersonController {
         res.json({ token });
     }
 
-    async getAll(req, res) {
-        const persons = await Person.findAll();
-        return res.json(persons);
+    async getAll(req, res, next) {
+        try {
+            let { limit, page } = req.query;
+            const persons = await PersonService.getAll(limit, page);
+            return res.json(persons);
+        } catch (error) {
+            next(error);
+        }
     }
 
-    async getOne(req, res) {
-        const { id } = req.params;
-        const person = await Person.findByPk(id);
-        return res.json(person);
+    async getOne(req, res, next) {
+        try {
+            const { id } = req.params;
+            const person = await PersonService.getOne(id);
+            return res.json(person);
+        } catch (error) {
+            next(error);
+        }
     }
 
-    async update(req, res) {
-        const { 
-            id, 
-            firstName, 
-            secondName, 
-            fatherName, 
-            email, 
-            phoneNumber, 
-            isActivated,
-            activationLink
-        } = req.body;
-        const person = await Person.update({
-            firstName, 
-            secondName, 
-            fatherName, 
-            email, 
-            phoneNumber, 
-            isActivated,
-            activationLink
-        }, {
-            where: { id: id }
-        });
-        return res.json(person);
+    async update(req, res, next) {
+        try {
+            const person = await PersonService.update(req.body);
+            return res.json(person);
+        } catch (error) {
+            next(error);
+        }
     }
 
-    async delete(req, res) {
-        const { id } = req.params;
-        const person = await Person.destroy({
-            where: { id: id }
-        });
-        return res.json(person);
+    async delete(req, res, next) {
+        try {
+            const { id } = req.params;
+            const person = await PersonService.delete(id);
+            return res.json(person);
+        } catch (error) {
+            next(error);
+        }
     }
 }
 
