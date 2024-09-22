@@ -34,8 +34,8 @@ class CommentService {
         limit = limit || 16;
         const offset = (page - 1) * limit;
         const comments = await Comment.findAndCountAll(
-            {limit, offset}, 
-            {where: {productId}}
+            {where: {productId}},
+            {limit, offset}
         );
         return comments;
     }

@@ -1,4 +1,5 @@
 import { OrderProduct } from "../models/models.js";
+import { BasketProduct } from "../models/models.js";
 import ApiError from "../error/ApiError.js";
 
 class OrderProductService {
@@ -12,8 +13,15 @@ class OrderProductService {
         return orderProduct;
     }
 
-    async createFromPersonBasket(personId) {
+    async createFromPersonBasket(personId, orderId) {
+        const basketProducts = await BasketProduct.findAll({where: {personId, inOrder: true}});
+        const orderProducts = basketProducts.map(x => x.dataValues);
 
+        for (const product of orderProducts) {
+            const {id, productId, count} = product
+            await BasketProduct.destroy({where: {id}});
+            await this.create({productId, orderId, count});
+        }
     }
 
     async getAll(limit, page) {
@@ -28,8 +36,8 @@ class OrderProductService {
         limit = limit || 16;
         const offset = (page - 1) * limit;
         const orderProducts = await OrderProduct.findAndCountAll(
-            {limit, offset}, 
-            {where: {orderId}}
+            {where: {orderId}},
+            {limit, offset}
         );
         return orderProducts;
     }

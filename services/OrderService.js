@@ -1,4 +1,6 @@
 import { Order } from "../models/models.js";
+import { BasketProduct } from "../models/models.js";
+import OrderProductService from "./OrderProductService.js";
 
 class OrderService {
     async create(params) {
@@ -11,6 +13,7 @@ class OrderService {
         // не знаю где прикручивать оплату здесь или на сервере
         const { price, address, comment, status, personId } = params;
         const order = await Order.create({price, address, comment, status, personId});
+        await OrderProductService.createFromPersonBasket(personId, order.dataValues.id);
         return order;
     }
 

@@ -24,8 +24,8 @@ class BasketProductService {
         limit = limit || 16;
         const offset = (page - 1) * limit;
         const basketProducts = await BasketProduct.findAndCountAll(
-            {limit, offset}, 
-            {where: {personId}}
+            {where: {personId}},
+            {limit, offset}
         );
         return basketProducts;
     }

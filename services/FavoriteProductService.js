@@ -25,8 +25,8 @@ class FavoriteProductService {
         limit = limit || 16;
         const offset = (page - 1) * limit;
         const favoriteProducts = await FavoriteProduct.findAndCountAll(
-            {limit, offset}, 
-            {where: {personId}}
+            {where: {personId}},
+            {limit, offset}            
         );
         return favoriteProducts;
     }
