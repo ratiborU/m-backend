@@ -1,51 +1,74 @@
 import { Answer } from "../models/models.js";
+import AnswerService from "../services/AnswerService.js";
 
 class AnswerController {
     async create(req, res) {
-        const { text, commentId, personId } = req.body;
-        const answer = await Answer.create({ text, commentId, personId })
-        return res.json(answer);
+        try {
+            const answer = await AnswerService.create(req.body);
+            return res.json(answer);
+        } catch (error) {
+            next(error);
+        }
     }
 
     async getAll(req, res) {
-        const answers = Answer.findAll();
-        return res.json(answers);
+        try {
+            const { limit, page } = req.query;
+            const answers = await AnswerService.getAll(limit, page);
+            return res.json(answers);
+        } catch (error) {
+            next(error);
+        }
     }
 
     async getAllByCommentId(req, res) {
-        const { id } = req.params;
-        const answers = Answer.findAll({ where: { commentId: id } });
-        return res.json(answers);
+        try {
+            const { id } = req.params;
+            const answers = await AnswerService.getAllByCommentId(id);
+            return res.json(answers);
+        } catch (error) {
+            next(error);
+        }
     }
 
     async getAllByPersonId(req, res) {
-        const { id } = req.params;
-        const answers = Answer.findAll({ where: { personId: id } });
-        return res.json(answers);
+        try {
+            const { id } = req.params;
+            const answers = await AnswerService.getAllByPersonId(id);
+            return res.json(answers);
+        } catch (error) {
+            next(error);
+        }
     }
 
     async getOne(req, res) {
-        const { id } = req.params;
-        const answer = Answer.findByPk(id);
-        return res.json(answer);
+        try {
+            const { id } = req.params;
+            const answer = await AnswerService.getOne(id);
+            return res.json(answer);
+        } catch (error) {
+            next(error);
+        }
     }
 
     async update(req, res) {
-        const { id, text, commentId, personId } = req.body;
-        const answer = await Answer.update({
-            text, commentId, personId
-        }, {
-            where: { id }
-        });
-        return res.json(answer);
+        try {
+            const answer = await AnswerService.update(req.body);
+            return res.json(answer);
+        } catch (error) {
+            next(error);
+        }
     }
 
     async delete(req, res) {
         const {id} = req.params;
-        const answer = await Answer.destroy({
-            where: { id }
-        });
+        const answer = await Answer.destroy({where: { id }});
         return res.json(answer);
+        try {
+            
+        } catch (error) {
+            next(error);
+        }
     }
 }
 
