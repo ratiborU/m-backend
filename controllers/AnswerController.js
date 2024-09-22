@@ -61,11 +61,10 @@ class AnswerController {
     }
 
     async delete(req, res) {
-        const {id} = req.params;
-        const answer = await Answer.destroy({where: { id }});
-        return res.json(answer);
         try {
-            
+            const {id} = req.params;
+            const answer = await AnswerService.delete(id);
+            return res.json(answer);
         } catch (error) {
             next(error);
         }
