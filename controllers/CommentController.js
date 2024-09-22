@@ -33,7 +33,7 @@ class CommentController {
     async getAllByProductId(req, res, next) {
         try {
             const {id} = req.params;
-            let { limit, page } = req.query;
+            const { limit, page } = req.query;
             const comment = await CommentService.getAllByProductId(id, limit, page);
             return res.json(comment);
         } catch (error) {
@@ -44,7 +44,7 @@ class CommentController {
     async getAllByPersonId(req, res, next) {
         try {
             const {id} = req.params;
-            let { limit, page } = req.query;
+            const { limit, page } = req.query;
             const comment = await CommentService.getAllByPersonId(id, limit, page);
             return res.json(comment);
         } catch (error) {

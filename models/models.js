@@ -67,9 +67,10 @@ const OrderProduct = sequelize.define('order_product', {
 
 const BasketProduct = sequelize.define('basket_product', {
     id: {type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true},    
+    inOrder: {type: DataTypes.BOOLEAN, defaultValue: true},
+    count: {type: DataTypes.INTEGER, defaultValue: 1},
     // productId: {type: DataTypes.STRING},
     // personId: {type: DataTypes.STRING},
-    count: {type: DataTypes.INTEGER},
 });
 
 const FavoriteProduct = sequelize.define('favorite_product', {
