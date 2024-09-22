@@ -49,22 +49,46 @@ class AuthService {
         return activationLink;
     }
 
-    async login(req, res, next) {
-        const { email, password } = req.body;
+    async login(email, password) {
         const person = await Person.findOne({ where: { email } });
         if (!person) {
-            return next(ApiError.badRequest('Неверно указан логин или пароль'));
+            throw ApiError.badRequest('Неверно указан логин или пароль');
         }
         if (!person.dataValues.isActivated) {
-            return next(ApiError.unauthorized('Ваш аккаунт еще не был активирован через почту'));
+            throw ApiError.unauthorized('Ваш аккаунт еще не был активирован через почту');
         }
         let comparePassword = bcrypt.compareSync(password, person.dataValues.password)
         if (!comparePassword) {
-            return next(ApiError.badRequest('Неверно указан логин или пароль'));
+            throw ApiError.badRequest('Неверно указан логин или пароль');
         }
-        const tokens = generateJwtAccessAndRefresh(person.dataValues.id, person.dataValues.email, person.dataValues.role);
-        res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
-        return res.json({ tokens });
+
+        const tokens = await TokenService.generateJwtAccessAndRefresh(person.dataValues.id, person.dataValues.email, person.dataValues.role);
+        // res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+        console.log(tokens);
+        return tokens;
+    }
+
+    async activate(link) {
+        const person = await Person.findOne({where: {activationLink: link}});
+        if (!person) {
+            throw ApiError.badRequest('Некорректная ссылка активации');
+        }
+        await Person.update({
+            isActivated: true,
+        }, {
+            where: { id: person.dataValues.id }
+        });
+        // какая-то ошибка с редиректом
+        return {message: "активация прошла успешно"};
+    }
+
+    async refresh(refreshToken) {
+        if (!refreshToken) {
+            throw ApiError.unauthorized('Пользователь не авторизован');
+        }
+        const {id, email, role} = jwt.verify(refreshToken, process.env.SECRET_KEY);
+        const tokens = TokenService.generateJwtAccessAndRefresh({id, email, role});
+        return tokens;
     }
 }
 

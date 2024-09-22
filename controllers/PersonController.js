@@ -7,6 +7,7 @@ import nodemailer from "nodemailer";
 import { validationResult } from "express-validator";
 
 import AuthService from "../services/AuthService.js";
+import PersonService from "../services/PersonService.js";
 
 const generateJwt = (id, email, role, time) => {
     return jwt.sign(
@@ -33,26 +34,20 @@ class PersonController {
             const activationLink = await AuthService.registration(req.body);
             return res.json(activationLink);
         } catch (error) {
-            return next(ApiError.internal(error));
+            return next(error);
         }
     }
 
     async login(req, res, next) {
-        const { email, password } = req.body;
-        const person = await Person.findOne({ where: { email } });
-        if (!person) {
-            return next(ApiError.badRequest('Неверно указан логин или пароль'));
+        try {
+            const { email, password } = req.body;
+            const tokens = await AuthService.login(email, password);
+            // console.log(tokens);
+            res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+            return res.json({ tokens });
+        } catch (error) {
+            return next(error);
         }
-        if (!person.dataValues.isActivated) {
-            return next(ApiError.unauthorized('Ваш аккаунт еще не был активирован через почту'));
-        }
-        let comparePassword = bcrypt.compareSync(password, person.dataValues.password)
-        if (!comparePassword) {
-            return next(ApiError.badRequest('Неверно указан логин или пароль'));
-        }
-        const tokens = generateJwtAccessAndRefresh(person.dataValues.id, person.dataValues.email, person.dataValues.role);
-        res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
-        return res.json({ tokens });
     }
 
     // а она нужна вообще, лучше сделать на фронте
@@ -62,30 +57,24 @@ class PersonController {
     }
 
     async activate(req, res, next) {
-        const { link } = req.params;
-        const person = await Person.findOne({where: {activationLink: link}});
-        if (!person) {
-            return next(ApiError.badRequest('Некорректная ссылка активации'));
+        try {
+            const { link } = req.params;
+            await AuthService.activate(link);
+            return res.redirect(process.env.CLIENT_URL);
+        } catch (error) {
+            return next(error);
         }
-        await Person.update({
-            isActivated: true,
-        }, {
-            where: { id: person.dataValues.id }
-        });
-        const updatedPerson = await Person.findOne({where: { id: person.dataValues.id }});
-        // какая-то ошибка с редиректом
-        return res.redirect(process.env.CLIENT_URL);
     }
 
     async refresh(req, res, next) {
-        const { refreshToken } = req.body;
-        if (!refreshToken) {
-            next(ApiError.unauthorized('Пользователь не авторизован'));
+        try {
+            const { refreshToken } = req.body;
+            const tokens = await AuthService.refresh(refreshToken);
+            res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
+            return res.json({ tokens });
+        } catch (error) {
+            return next(error);
         }
-        const {id, email, role} = jwt.verify(refreshToken, process.env.SECRET_KEY);
-        const tokens = generateJwtAccessAndRefresh(id, email, role);
-        res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
-        return res.json({ tokens });
     }
 
     async auth(req, res, next) {
@@ -94,48 +83,43 @@ class PersonController {
         res.json({ token });
     }
 
-    async getAll(req, res) {
-        const persons = await Person.findAll();
-        return res.json(persons);
+    async getAll(req, res, next) {
+        try {
+            let { limit, page } = req.query;
+            const persons = await PersonService.getAll(limit, page);
+            return res.json(persons);
+        } catch (error) {
+            next(error);
+        }
     }
 
-    async getOne(req, res) {
-        const { id } = req.params;
-        const person = await Person.findByPk(id);
-        return res.json(person);
+    async getOne(req, res, next) {
+        try {
+            const { id } = req.params;
+            const person = await PersonService.getOne(id);
+            return res.json(person);
+        } catch (error) {
+            next(error);
+        }
     }
 
-    async update(req, res) {
-        const { 
-            id, 
-            firstName, 
-            secondName, 
-            fatherName, 
-            email, 
-            phoneNumber, 
-            isActivated,
-            activationLink
-        } = req.body;
-        const person = await Person.update({
-            firstName, 
-            secondName, 
-            fatherName, 
-            email, 
-            phoneNumber, 
-            isActivated,
-            activationLink
-        }, {
-            where: { id: id }
-        });
-        return res.json(person);
+    async update(req, res, next) {
+        try {
+            const person = await PersonService.update(req.body);
+            return res.json(person);
+        } catch (error) {
+            next(error);
+        }
     }
 
-    async delete(req, res) {
-        const { id } = req.params;
-        const person = await Person.destroy({
-            where: { id: id }
-        });
-        return res.json(person);
+    async delete(req, res, next) {
+        try {
+            const { id } = req.params;
+            const person = await PersonService.delete(id);
+            return res.json(person);
+        } catch (error) {
+            next(error);
+        }
     }
 }
 

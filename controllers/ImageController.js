@@ -4,67 +4,68 @@ import { Image } from '../models/models.js';
 import ApiError from '../error/ApiError.js';
 import { unlink } from 'fs';
 
+import ImageService from '../services/ImageService.js';
+
 class ImageController {
     async create(req, res, next) {
         try {
             const { productId } = req.body;
             const { img } = req.files;
-            let fileName = uuidv4() + ".jpg";
-            img.mv(path.resolve('static', fileName));
-            const image = await Image.create({productId, path: fileName});
+            const image = await ImageService.create(productId, img);
             return res.json(image);
         } catch (error) {
-            next(ApiError.badRequest(error.message))
+            next(error)
         }
     }
 
-    async getAll(req, res) {
-        const images = await Image.findAll();
-        return res.json(images);
+    async getAll(req, res, next) {
+        try {
+            const images = await ImageService.getAll();
+            return res.json(images);
+        } catch (error) {
+            next(error)
+        }
     }
 
-    async getAllByProductId(req, res) {
-        const { id } = req.params;
-        const images = await Image.findAll({where: {productId: id}});
-        return res.json(images);
+    async getAllByProductId(req, res, next) {
+        try {
+            const { id } = req.params;
+            const images = await ImageService.getAllByProductId(id);
+            return res.json(images);
+        } catch (error) {
+            next(error)
+        }
     }
 
-    async getOne(req, res) {
-        const { id } = req.params;
-        const image = await Image.findByPk(id);
-        return res.json(image);
+    async getOne(req, res, next) {
+        try {
+            const { id } = req.params;
+            const image = await ImageService.getOne(id);
+            return res.json(image);
+        } catch (error) {
+            next(error)
+        }
     }
 
-    async update(req, res) {
-        const { id, productId } = req.body;
-        const { img } = req.files;
-        let fileName = uuidv4() + ".jpg";
-        img.mv(path.resolve('static', fileName));
-
-        const image = await Image.findByPk(id);
-        unlink(path.resolve('static', image.dataValues.path), (error) => {
-            console.log("file was deleted!");
-        });
-
-        await Image.update({
-            productId, path: fileName
-        }, {
-            where: { id: id }
-        });
-        return res.json('');
+    async update(req, res, next) {
+        try {
+            const { id, productId } = req.body;
+            const { img } = req.files;
+            await ImageService.update(id, productId, img);
+            return res.json({message: 'Фотография успешно обновлена'});
+        } catch (error) {
+            next(error);
+        }
     }
 
-    async delete(req, res) {
-        const { id } = req.params;
-        const image = await Image.findByPk(id);
-        unlink(path.resolve('static', image.dataValues.path), (error) => {
-            console.log("file was deleted!");
-        });
-        await Image.destroy({
-            where: { id: id }
-        });
-        // console.log(path.resolve('static', image.dataValues.path));
-        return res.json('');
+    async delete(req, res, next) {
+        try {
+            const { id } = req.params;
+            await ImageService.delete(id);
+            return res.json({message: 'Фотография успешно удалена'});
+        } catch (error) {
+            next(error);
+        }
     }
 }
 
