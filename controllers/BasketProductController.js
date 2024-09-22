@@ -19,6 +19,7 @@ class BasketProductController {
             next(error);
         }
     }
+    
     async getAllByPersonId(req, res, next) {
         try {
             const {id} = req.params;

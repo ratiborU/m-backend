@@ -5,6 +5,7 @@ const orderProductRouter = new Router();
 
 orderProductRouter.post('', OrderProductController.create);
 orderProductRouter.get('', OrderProductController.getAll);
+orderProductRouter.get('/byOrderId/:id', OrderProductController.getAllByOrderId);
 orderProductRouter.get('/:id', OrderProductController.getOne);
 orderProductRouter.put('/', OrderProductController.update);
 orderProductRouter.delete('/:id', OrderProductController.delete);

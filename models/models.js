@@ -120,7 +120,7 @@ Answer.belongsTo(Comment);
 
 // Order
 Order.hasMany(OrderProduct);
-OrderProduct.belongsTo(Comment);
+OrderProduct.belongsTo(Order);
 
 export { 
     Person, 
