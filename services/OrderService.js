@@ -2,11 +2,13 @@ import { Order } from "../models/models.js";
 
 class OrderService {
     async create(params) {
-        // нужно удалять продукты из basket и создавать их в order
+        // нужно удалять продукты из basket с флагом inOrder 
+        // и создавать их в order с флагом InOrder
         // возжможно стоит добавить строку с перечислением всех товаров в модель Order
         // не удаляя при этом OrderProduct
         // может быть стоит отправлять уведомление на почту 
         // о том что пришел заказ
+        // не знаю где прикручивать оплату здесь или на сервере
         const { price, address, comment, status, personId } = params;
         const order = await Order.create({price, address, comment, status, personId});
         return order;
