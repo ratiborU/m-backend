@@ -56,11 +56,14 @@ class PersonController {
         return res.json('Вы успешно вышли');
     }
 
+    // по какой-то причине не работает активация
     async activate(req, res, next) {
         try {
             const { link } = req.params;
             await AuthService.activate(link);
+            // console.log('activation');
             return res.redirect(process.env.CLIENT_URL);
+            // return res.json(process.env.CLIENT_URL);
         } catch (error) {
             return next(error);
         }
@@ -96,6 +99,7 @@ class PersonController {
     async getOne(req, res, next) {
         try {
             const { id } = req.params;
+            console.log('getOne');
             const person = await PersonService.getOne(id);
             return res.json(person);
         } catch (error) {

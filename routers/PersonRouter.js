@@ -16,7 +16,7 @@ personRouter.post('/logout', PersonController.logout);
 personRouter.get('/auth', authMiddleWare, PersonController.auth);
 personRouter.get('', PersonController.getAll);
 personRouter.get('/:id', PersonController.getOne);
-personRouter.patch('/activate/:link', PersonController.activate);
+personRouter.get('/activate/:link', PersonController.activate);
 personRouter.post('/refresh', PersonController.refresh);
 
 personRouter.put('/', PersonController.update);

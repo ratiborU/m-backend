@@ -45,8 +45,8 @@ class CommentService {
         limit = limit || 16;
         const offset = (page - 1) * limit;
         const comments = await Comment.findAndCountAll(
-            {limit, offset}, 
-            {where: {personId}}
+            {where: {personId}},
+            {limit, offset}
         );
         return comments;
     }
@@ -54,8 +54,10 @@ class CommentService {
     async update(params) {
         const { id, text, rate, personId, productId } = params;
         const comment = await Comment.findByPk(id);
-        await ProductService.add(productId, rate);
-        await ProductService.removeRate(productId, comment.dataValues.rate);
+        // await ProductService.removeRate(productId, comment.dataValues.rate);
+        // await ProductService.add(productId, rate);
+        await ProductService.changeRate(productId, comment.dataValues.rate, rate);
+        console.log('hola');
         await Comment.update(
             {text, rate, personId, productId}, 
             {where: { id }}

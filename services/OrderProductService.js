@@ -49,9 +49,9 @@ class OrderProductService {
     }
 
     async update(params) {
-        const {id, productId, personId, count, inOrder} = params;
+        const {id, count} = params;
         await OrderProduct.update(
-            {productId, personId, count, inOrder}, 
+            {count}, 
             {where: { id }}
         );
         const updatedOrderProduct = await OrderProduct.findByPk(id)
