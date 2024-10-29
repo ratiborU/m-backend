@@ -5,6 +5,12 @@ import { body } from "express-validator";
 
 const personRouter = new Router();
 
+personRouter.post('', 
+  body('email').isEmail(), 
+  body('password').isLength({min: 8, max: 32}), 
+  PersonController.registration
+);
+
 personRouter.post('/registration', 
     body('email').isEmail(), 
     body('password').isLength({min: 8, max: 32}), 
@@ -16,7 +22,7 @@ personRouter.post('/logout', PersonController.logout);
 personRouter.get('/auth', authMiddleWare, PersonController.auth);
 personRouter.get('', PersonController.getAll);
 personRouter.get('/:id', PersonController.getOne);
-personRouter.patch('/activate/:link', PersonController.activate);
+personRouter.get('/activate/:link', PersonController.activate);
 personRouter.post('/refresh', PersonController.refresh);
 
 personRouter.put('/', PersonController.update);

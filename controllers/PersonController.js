@@ -38,6 +38,19 @@ class PersonController {
         }
     }
 
+    async create(req, res, next) {
+      try {
+          const errors = validationResult(req);
+          if (!errors.isEmpty()) {
+              return next(ApiError.badRequest('Ошибка при валидации'));
+          }
+          const activationLink = await PersonService.create(req.body);
+          return res.json(activationLink);
+      } catch (error) {
+          return next(error);
+      }
+  }
+
     async login(req, res, next) {
         try {
             const { email, password } = req.body;
@@ -56,11 +69,14 @@ class PersonController {
         return res.json('Вы успешно вышли');
     }
 
+    // по какой-то причине не работает активация
     async activate(req, res, next) {
         try {
             const { link } = req.params;
             await AuthService.activate(link);
+            // console.log('activation');
             return res.redirect(process.env.CLIENT_URL);
+            // return res.json(process.env.CLIENT_URL);
         } catch (error) {
             return next(error);
         }
@@ -96,6 +112,7 @@ class PersonController {
     async getOne(req, res, next) {
         try {
             const { id } = req.params;
+            console.log('getOne');
             const person = await PersonService.getOne(id);
             return res.json(person);
         } catch (error) {

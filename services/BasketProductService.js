@@ -1,4 +1,5 @@
 import { BasketProduct } from "../models/models.js";
+import ApiError from '../error/ApiError.js'
 
 class BasketProductService {
     async create(params) {
@@ -39,7 +40,7 @@ class BasketProductService {
     async update(params) {
         const {id, productId, personId, count, inOrder} = params;
         await BasketProduct.update(
-            {productId, personId, count, inOrder}, 
+            {count, inOrder}, 
             {where: { id }}
         );
         const updatedBasketProduct = await BasketProduct.findByPk(id)

@@ -30,7 +30,8 @@ class AuthService {
         const activationLink = uuidv4();
         const fullActivationLink = `http://localhost:5000/api/persons/activate/${activationLink}`;
 
-        MailService.sendActivationLink(email, fullActivationLink);
+        // отправка письма на почту
+        // MailService.sendActivationLink(email, fullActivationLink);
 
         const person = await Person.create({
             firstName, 
