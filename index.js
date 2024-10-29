@@ -7,16 +7,16 @@ import cookieParser from "cookie-parser";
 import { sequelize } from "./db.js";
 import { router } from "./routers/index.js";
 import { errorHandler } from "./middleware/ErrorHandlingMiddleware.js";
-import { 
-    Person, 
-    Product, 
-    Image, 
-    Comment, 
-    Answer, 
-    Order, 
-    OrderProduct, 
-    BasketProduct, 
-    FavoriteProduct 
+import {
+  Person,
+  Product,
+  Image,
+  Comment,
+  Answer,
+  Order,
+  OrderProduct,
+  BasketProduct,
+  FavoriteProduct
 } from "./models/models.js";
 
 
@@ -37,14 +37,14 @@ app.use(errorHandler);
 
 
 const start = async () => {
-    try {
-        await sequelize.authenticate();
-        // создает таблицу заного
-        // await sequelize.sync({ force: true });
-        app.listen(PORT, () => console.log('server started on port ' + PORT))
-    } catch (error) {
-        console.log(error);
-    }
+  try {
+    await sequelize.authenticate();
+    // создает таблицу заного
+    // await sequelize.sync({ force: true });
+    app.listen(PORT, () => console.log('server started on port ' + PORT))
+  } catch (error) {
+    console.log(error);
+  }
 }
 
 start();
