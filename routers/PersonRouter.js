@@ -5,16 +5,16 @@ import { body } from "express-validator";
 
 const personRouter = new Router();
 
-personRouter.post('', 
-  body('email').isEmail(), 
-  body('password').isLength({min: 8, max: 32}), 
+personRouter.post('',
+  body('email').isEmail(),
+  body('password').isLength({ min: 8, max: 32 }),
   PersonController.registration
 );
 
-personRouter.post('/registration', 
-    body('email').isEmail(), 
-    body('password').isLength({min: 8, max: 32}), 
-    PersonController.registration
+personRouter.post('/registration',
+  body('email').isEmail(),
+  body('password').isLength({ min: 8, max: 32 }),
+  PersonController.registration
 );
 personRouter.post('/login', PersonController.login);
 personRouter.post('/logout', PersonController.logout);

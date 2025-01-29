@@ -6,29 +6,40 @@ import { unlink } from 'fs';
 class ProductService {
   async create(params) {
     const {
-      title,
+      name,
       description,
+      seoTitle,
+      seoDescription,
       characteristics,
       price,
+      discount,
       rate,
       commentsCount,
-      file
+      productsCount,
+      categoryId,
+      file = ''
     } = params;
-
-    let fileName = uuidv4() + ".jpg";
-    await file.mv(path.resolve('static', fileName));
+    console.log('hola2');
+    let fileName = '';
+    if (file) {
+      fileName = uuidv4() + ".jpg";
+      await file.mv(path.resolve('static', fileName));
+    }
 
     const product = await Product.create({
-      title,
+      name,
       description,
+      seoTitle,
+      seoDescription,
       characteristics,
       price,
+      discount,
       rate,
       commentsCount,
+      productsCount,
+      categoryId,
       mainImage: fileName
     });
-    console.log('hola');
-    console.log(product);
     return product;
   }
 
@@ -48,20 +59,21 @@ class ProductService {
   async update(params) {
     const {
       id,
-      title,
+      name,
       description,
+      seoTitle,
+      seoDescription,
       characteristics,
       price,
+      discount,
       rate,
       commentsCount,
+      productsCount,
+      categoryId,
       file
     } = params;
 
-    // console.log(params, '\n');
-
     const product = await Product.findByPk(id);
-
-    // console.log(params, '\n');
 
     let fileName = product.mainImage;
     if (file) {
@@ -72,19 +84,23 @@ class ProductService {
       });
     }
 
-    // console.log(params, '\n');
-
     await Product.update({
-      title: title || product.title,
+      name: name || product.name,
       description: description || product.description,
+      seoTitle: seoTitle || product.seoTitle,
+      seoDescription: seoDescription || product.seoDescription,
       characteristics: characteristics || product.characteristics,
       price: price || product.price,
+      discount: discount || product.discount,
       rate: rate || product.rate,
       commentsCount: commentsCount || product.commentsCount,
+      productsCount: productsCount || product.productsCount,
+      categoryId: categoryId || product.categoryId,
       mainImage: fileName
     }, {
       where: { id }
     });
+
     const updatedProduct = await Product.findByPk(id)
     return updatedProduct;
   }
