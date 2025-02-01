@@ -63,6 +63,7 @@ class PersonService {
       email,
       phoneNumber,
       isActivated,
+      role,
       activationLink
     } = params;
     const updatedPerson = await Person.update({
@@ -72,6 +73,7 @@ class PersonService {
       email,
       phoneNumber,
       isActivated,
+      role,
       activationLink
     }, {
       where: { id: id }

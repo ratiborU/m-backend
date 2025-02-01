@@ -17,8 +17,14 @@ class OrderService {
     return order;
   }
 
-  async getAll() {
-    const orders = await Order.findAll();
+  async getAll(limit, page) {
+    page = page || 1;
+    limit = limit || 25;
+    let offset = (page - 1) * limit;
+    console.log('hola');
+    const orders = await Order.findAndCountAll({ limit: limit, offset: offset });
+    console.log(orders);
+    // const orders = await Order.findAll();
     return orders;
   }
 
