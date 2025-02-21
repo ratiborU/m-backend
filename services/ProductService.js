@@ -19,7 +19,6 @@ class ProductService {
       categoryId,
       file = ''
     } = params;
-    console.log('hola2');
     let fileName = '';
     if (file) {
       fileName = uuidv4() + ".jpg";

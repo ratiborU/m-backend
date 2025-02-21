@@ -57,7 +57,6 @@ class CommentService {
     // await ProductService.removeRate(productId, comment.dataValues.rate);
     // await ProductService.add(productId, rate);
     await ProductService.changeRate(productId, comment.dataValues.rate, rate);
-    console.log('hola');
     await Comment.update(
       { text, rate, personId, productId },
       { where: { id } }

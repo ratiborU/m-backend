@@ -39,7 +39,6 @@ class ProductController {
 
   async update(req, res, next) {
     try {
-      // console.log('\n', req.files.file, '\n');
       let file;
       if (req.files) {
         file = req.files.file;

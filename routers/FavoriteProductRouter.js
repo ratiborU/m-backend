@@ -1,5 +1,7 @@
 import { Router } from "express";
 import FavoriteProductController from "../controllers/FavoriteProductController.js";
+import { authMiddleWare } from "../middleware/authMiddleware.js";
+import { checkRoleMiddleWare } from "../middleware/checkRoleMiddleWare.js";
 
 const favoriteProductRouter = new Router();
 

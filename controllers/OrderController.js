@@ -6,7 +6,6 @@ class OrderController {
       const order = await OrderService.create(req.body);
       return res.json(order);
     } catch (error) {
-      console.log(error);
       next(error);
     }
   }
