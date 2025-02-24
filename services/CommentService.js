@@ -1,4 +1,4 @@
-import { Comment, Person } from "../models/models.js";
+import { Comment, Person, Product } from "../models/models.js";
 import ApiError from "../error/ApiError.js";
 import ProductService from "./ProductService.js";
 
@@ -18,12 +18,12 @@ class CommentService {
     page = page || 1;
     limit = limit || 100;
     const offset = (page - 1) * limit;
-    const comments = await Comment.findAndCountAll({ limit, offset, include: Person });
+    const comments = await Comment.findAndCountAll({ limit, offset, include: [Person, Product] });
     return comments;
   }
 
   async getOne(id) {
-    const comment = await Comment.findByPk(id, { include: Person });
+    const comment = await Comment.findByPk(id, { include: [Person, Product] });
     // если не нашел выкинуть ошибку
     return comment;
   }
@@ -34,7 +34,7 @@ class CommentService {
     limit = limit || 100;
     const offset = (page - 1) * limit;
     const comments = await Comment.findAndCountAll(
-      { where: { productId }, limit, offset, include: Person }
+      { where: { productId }, limit, offset, include: [Person, Product] }
     );
     return comments;
   }
@@ -44,7 +44,7 @@ class CommentService {
     limit = limit || 100;
     const offset = (page - 1) * limit;
     const comments = await Comment.findAndCountAll(
-      { where: { personId }, limit, offset, include: Person }
+      { where: { personId }, limit, offset, include: [Person, Product] }
     );
     return comments;
   }
@@ -59,7 +59,7 @@ class CommentService {
       { text, rate, personId, productId },
       { where: { id } }
     );
-    const updatedComment = await Comment.findByPk(id, { include: Person })
+    const updatedComment = await Comment.findByPk(id, { include: [Person, Product] })
     return updatedComment;
   }
 

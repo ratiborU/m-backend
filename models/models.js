@@ -1,6 +1,8 @@
 import { sequelize } from "../db.js";
 import { DataTypes } from "sequelize";
 
+// paranoid: true
+
 const Person = sequelize.define('person', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   firstName: { type: DataTypes.STRING, allowNull: false },
