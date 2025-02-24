@@ -17,12 +17,10 @@ class MailService {
       text: '', // Plain text body
       // потом сделать красивую обложку (адаптивную)
       html:
-        `
-                    <div>
-                        <h1>Для активации аккаунта перейдите по ссылке</h1>
-                        <a href="${activationLink}">Подтвердить адрес электронной почты</a>
-                    </div>
-                `
+        `<div>
+            <h1>Для активации аккаунта перейдите по ссылке</h1>
+            <a href="${activationLink}">Подтвердить адрес электронной почты</a>
+          </div>`
     };
 
     transporter.sendMail(mailOptions, (error, info) => {

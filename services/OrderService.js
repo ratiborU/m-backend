@@ -1,4 +1,4 @@
-import { Order } from "../models/models.js";
+import { Order, Person } from "../models/models.js";
 import { BasketProduct } from "../models/models.js";
 import OrderProductService from "./OrderProductService.js";
 
@@ -19,20 +19,20 @@ class OrderService {
 
   async getAll(limit, page) {
     page = page || 1;
-    limit = limit || 25;
+    limit = limit || 100;
     let offset = (page - 1) * limit;
-    const orders = await Order.findAndCountAll({ limit: limit, offset: offset });
+    const orders = await Order.findAndCountAll({ limit, offset, include: Person });
     // const orders = await Order.findAll();
     return orders;
   }
 
   async getOne(id) {
-    const order = await Order.findByPk(id);
+    const order = await Order.findByPk(id, { include: Person });
     return order;
   }
 
   async getAllByPersonId(personId) {
-    const orders = await Order.findAll({ where: { personId } });
+    const orders = await Order.findAll({ where: { personId }, include: Person });
     return orders;
   }
 

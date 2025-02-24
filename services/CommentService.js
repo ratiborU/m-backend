@@ -1,4 +1,4 @@
-import { Comment } from "../models/models.js";
+import { Comment, Person } from "../models/models.js";
 import ApiError from "../error/ApiError.js";
 import ProductService from "./ProductService.js";
 
@@ -16,14 +16,14 @@ class CommentService {
 
   async getAll(limit, page) {
     page = page || 1;
-    limit = limit || 16;
+    limit = limit || 100;
     const offset = (page - 1) * limit;
-    const comments = await Comment.findAndCountAll({ limit, offset });
+    const comments = await Comment.findAndCountAll({ limit, offset, include: Person });
     return comments;
   }
 
   async getOne(id) {
-    const comment = await Comment.findByPk(id);
+    const comment = await Comment.findByPk(id, { include: Person });
     // если не нашел выкинуть ошибку
     return comment;
   }
@@ -31,22 +31,20 @@ class CommentService {
   // нужно потестить
   async getAllByProductId(productId, limit, page) {
     page = page || 1;
-    limit = limit || 16;
+    limit = limit || 100;
     const offset = (page - 1) * limit;
     const comments = await Comment.findAndCountAll(
-      { where: { productId } },
-      { limit, offset }
+      { where: { productId }, limit, offset, include: Person }
     );
     return comments;
   }
 
   async getAllByPersonId(personId, limit, page) {
     page = page || 1;
-    limit = limit || 16;
+    limit = limit || 100;
     const offset = (page - 1) * limit;
     const comments = await Comment.findAndCountAll(
-      { where: { personId } },
-      { limit, offset }
+      { where: { personId }, limit, offset, include: Person }
     );
     return comments;
   }
@@ -61,7 +59,7 @@ class CommentService {
       { text, rate, personId, productId },
       { where: { id } }
     );
-    const updatedComment = await Comment.findByPk(id)
+    const updatedComment = await Comment.findByPk(id, { include: Person })
     return updatedComment;
   }
 

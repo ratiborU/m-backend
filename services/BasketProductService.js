@@ -1,4 +1,4 @@
-import { BasketProduct } from "../models/models.js";
+import { BasketProduct, Product, Category } from "../models/models.js";
 import ApiError from '../error/ApiError.js'
 
 class BasketProductService {
@@ -14,25 +14,24 @@ class BasketProductService {
 
   async getAll(limit, page) {
     page = page || 1;
-    limit = limit || 16;
+    limit = limit || 100;
     const offset = (page - 1) * limit;
-    const basketProducts = await BasketProduct.findAndCountAll({ limit, offset });
+    const basketProducts = await BasketProduct.findAndCountAll({ limit, offset, include: { model: Product, include: Category } });
     return basketProducts;
   }
 
   async getAllByPersonId(limit, page, personId) {
     page = page || 1;
-    limit = limit || 16;
+    limit = limit || 100;
     const offset = (page - 1) * limit;
     const basketProducts = await BasketProduct.findAndCountAll(
-      { where: { personId } },
-      { limit, offset }
+      { where: { personId }, limit, offset, include: { model: Product, include: Category } }
     );
     return basketProducts;
   }
 
   async getOne(id) {
-    const basketProduct = await BasketProduct.findByPk(id);
+    const basketProduct = await BasketProduct.findByPk(id, { include: { model: Product, include: Category } });
     // если не нашел выкинуть ошибку
     return basketProduct;
   }
@@ -43,7 +42,7 @@ class BasketProductService {
       { count, inOrder },
       { where: { id } }
     );
-    const updatedBasketProduct = await BasketProduct.findByPk(id)
+    const updatedBasketProduct = await BasketProduct.findByPk(id, { include: { model: Product, include: Category } })
     return updatedBasketProduct;
   }
 

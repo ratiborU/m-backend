@@ -43,9 +43,9 @@ class PersonService {
 
   async getAll(limit, page) {
     page = page || 1;
-    limit = limit || 25;
+    limit = limit || 100;
     let offset = (page - 1) * limit;
-    const persons = await Person.findAndCountAll({ limit: limit, offset: offset });
+    const persons = await Person.findAndCountAll({ limit, offset });
     return persons;
   }
 

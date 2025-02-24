@@ -1,5 +1,4 @@
-import { OrderProduct } from "../models/models.js";
-import { BasketProduct } from "../models/models.js";
+import { OrderProduct, BasketProduct, Product, Order, Category } from "../models/models.js";
 import ApiError from "../error/ApiError.js";
 
 class OrderProductService {
@@ -26,24 +25,23 @@ class OrderProductService {
 
   async getAll(limit, page) {
     page = page || 1;
-    limit = limit || 16;
+    limit = limit || 100;
     const offset = (page - 1) * limit;
-    const orderProducts = await OrderProduct.findAndCountAll({ limit, offset });
+    const orderProducts = await OrderProduct.findAndCountAll({ limit, offset, include: { model: Product, include: Category } });
     return orderProducts;
   }
   async getAllByOrderId(limit, page, orderId) {
     page = page || 1;
-    limit = limit || 16;
+    limit = limit || 100;
     const offset = (page - 1) * limit;
     const orderProducts = await OrderProduct.findAndCountAll(
-      { where: { orderId } },
-      { limit, offset }
+      { where: { orderId }, limit, offset, include: { model: Product, include: Category } }
     );
     return orderProducts;
   }
 
   async getOne(id) {
-    const orderProduct = await OrderProduct.findByPk(id);
+    const orderProduct = await OrderProduct.findByPk(id, { include: { model: Product, include: Category } });
     // если не нашел выкинуть ошибку
     return orderProduct;
   }
@@ -54,7 +52,7 @@ class OrderProductService {
       { count },
       { where: { id } }
     );
-    const updatedOrderProduct = await OrderProduct.findByPk(id)
+    const updatedOrderProduct = await OrderProduct.findByPk(id, { include: { model: Product, include: Category } })
     return updatedOrderProduct;
   }
 

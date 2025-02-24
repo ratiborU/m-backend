@@ -6,6 +6,8 @@ import { body } from "express-validator";
 
 const personRouter = new Router();
 
+// поменять на отдельный путь
+// так чтобы мог создавать только админ
 personRouter.post('',
   body('email').isEmail(),
   body('password').isLength({ min: 8, max: 32 }),

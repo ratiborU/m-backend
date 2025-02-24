@@ -1,4 +1,4 @@
-import { Product } from "../models/models.js";
+import { Product, Category } from "../models/models.js";
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import { unlink } from 'fs';
@@ -44,14 +44,14 @@ class ProductService {
 
   async getAll(limit, page) {
     page = page || 1;
-    limit = limit || 16;
+    limit = limit || 100;
     let offset = (page - 1) * limit;
-    const products = await Product.findAndCountAll({ limit, offset });
+    const products = await Product.findAndCountAll({ limit, offset, include: Category });
     return products;
   }
 
   async getOne(id) {
-    const product = await Product.findByPk(id);
+    const product = await Product.findByPk(id, { include: Category });
     return product;
   }
 
@@ -100,7 +100,7 @@ class ProductService {
       where: { id }
     });
 
-    const updatedProduct = await Product.findByPk(id)
+    const updatedProduct = await Product.findByPk(id, { include: Category })
     return updatedProduct;
   }
 
@@ -115,7 +115,7 @@ class ProductService {
     }, {
       where: { id }
     });
-    const updatedProduct = await Product.findByPk(id);
+    const updatedProduct = await Product.findByPk(id, { include: Category });
     return updatedProduct;
   }
 
@@ -124,7 +124,7 @@ class ProductService {
     const rate = (product.dataValues.rate * product.dataValues.commentsCount + Number(newRate) - Number(oldRate)) / (product.dataValues.commentsCount)
 
     await Product.update({ rate }, { where: { id } });
-    const updatedProduct = await Product.findByPk(id);
+    const updatedProduct = await Product.findByPk(id, { include: Category });
     return updatedProduct;
   }
 
@@ -138,7 +138,7 @@ class ProductService {
     }, {
       where: { id }
     });
-    const updatedProduct = await Product.findByPk(id);
+    const updatedProduct = await Product.findByPk(id, { include: Category });
     return updatedProduct;
   }
 

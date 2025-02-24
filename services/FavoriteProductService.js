@@ -1,5 +1,5 @@
 import ApiError from "../error/ApiError.js";
-import { FavoriteProduct } from "../models/models.js";
+import { Category, FavoriteProduct, Product } from "../models/models.js";
 
 class FavoriteProductService {
   async create(params) {
@@ -12,11 +12,12 @@ class FavoriteProductService {
     return favoriteProduct;
   }
 
+  // сделать include в products для того чтобы в ленте отслеживать какие товары добавлены в избранное а какие нет
   async getAll(limit, page) {
     page = page || 1;
-    limit = limit || 16;
+    limit = limit || 100;
     const offset = (page - 1) * limit;
-    const favoriteProducts = await FavoriteProduct.findAndCountAll({ limit, offset });
+    const favoriteProducts = await FavoriteProduct.findAndCountAll({ limit, offset, include: { model: Product, include: Category } });
     return favoriteProducts;
   }
 
@@ -25,15 +26,13 @@ class FavoriteProductService {
     limit = limit || 16;
     const offset = (page - 1) * limit;
     const favoriteProducts = await FavoriteProduct.findAndCountAll(
-      { where: { personId } },
-      { limit, offset }
+      { where: { personId }, limit, offset, include: { model: Product, include: Category } }
     );
     return favoriteProducts;
   }
 
   async getOne(id) {
-    const favoriteProduct = await FavoriteProduct.findByPk(id);
-    // если не нашел выкинуть ошибку
+    const favoriteProduct = await FavoriteProduct.findByPk(id, { include: { model: Product, include: Category } });
     return favoriteProduct;
   }
 
@@ -43,7 +42,7 @@ class FavoriteProductService {
       { productId, personId },
       { where: { id } }
     );
-    const updatedFavoriteProduct = await FavoriteProduct.findByPk(id)
+    const updatedFavoriteProduct = await FavoriteProduct.findByPk(id, { include: { model: Product, include: Category } })
     return updatedFavoriteProduct;
   }
 

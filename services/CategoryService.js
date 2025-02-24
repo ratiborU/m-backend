@@ -9,7 +9,7 @@ class CategoryService {
 
   async getAll(limit, page) {
     page = page || 1;
-    limit = limit || 16;
+    limit = limit || 100;
     let offset = (page - 1) * limit;
     const categories = await Category.findAndCountAll({ limit, offset });
     return categories;
