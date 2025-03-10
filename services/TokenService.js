@@ -11,7 +11,7 @@ class TokenService {
 
   async generateJwtAccessAndRefresh(params) { //id, email, role
     return ({
-      accessToken: await this.generateToken(params, '60m'),
+      accessToken: await this.generateToken(params, '1d'),
       refreshToken: await this.generateToken(params, '7d'),
     })
   }

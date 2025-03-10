@@ -8,7 +8,9 @@ class FavoriteProductService {
     if (product) {
       throw ApiError.badRequest('Товар уже давблен в избранное данного пользователя');
     }
+    console.log('hola');
     const favoriteProduct = await FavoriteProduct.create({ productId, personId });
+    console.log('hola');
     return favoriteProduct;
   }
 
@@ -23,7 +25,7 @@ class FavoriteProductService {
 
   async getAllByPersonId(limit, page, personId) {
     page = page || 1;
-    limit = limit || 16;
+    limit = limit || 100;
     const offset = (page - 1) * limit;
     const favoriteProducts = await FavoriteProduct.findAndCountAll(
       { where: { personId }, limit, offset, include: { model: Product, include: Category } }
@@ -49,6 +51,16 @@ class FavoriteProductService {
   async delete(id) {
     const favoriteProduct = await FavoriteProduct.findByPk(id)
     await FavoriteProduct.destroy({ where: { id } });
+    return favoriteProduct;
+  }
+
+  async deleteByPersonAndProductId(personId, productId) {
+    const favoriteProduct = await FavoriteProduct.findOne(
+      { where: { personId: String(personId), productId: String(productId) } }
+    )
+    console.log(String(personId), String(productId));
+    console.log(favoriteProduct)
+    await FavoriteProduct.destroy({ where: { id: favoriteProduct.dataValues.id } });
     return favoriteProduct;
   }
 }

@@ -3,6 +3,7 @@ import BasketProductService from "../services/BasketProductService.js";
 class BasketProductController {
   async create(req, res, next) {
     try {
+      console.log('\n', 'hola', '\n');
       const basketProduct = await BasketProductService.create(req.body);
       return res.json(basketProduct);
     } catch (error) {

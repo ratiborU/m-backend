@@ -11,5 +11,6 @@ favoriteProductRouter.get('/byPersonId/:id', FavoriteProductController.getAllByP
 favoriteProductRouter.get('/:id', FavoriteProductController.getOne);
 favoriteProductRouter.put('/', FavoriteProductController.update);
 favoriteProductRouter.delete('/:id', FavoriteProductController.delete);
+favoriteProductRouter.post('/byPersonAndProductId/', FavoriteProductController.deleteByPersonAndProductId);
 
 export default favoriteProductRouter;

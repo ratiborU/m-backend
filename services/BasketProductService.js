@@ -3,12 +3,12 @@ import ApiError from '../error/ApiError.js'
 
 class BasketProductService {
   async create(params) {
-    const { productId, personId } = params;
+    const { productId, personId, count } = params;
     const product = await BasketProduct.findOne({ where: { productId, personId } });
     if (product) {
       throw ApiError.badRequest('Товар уже давблен в корзину данного пользователя');
     }
-    const basketProduct = await BasketProduct.create({ productId, personId });
+    const basketProduct = await BasketProduct.create({ productId, personId, count });
     return basketProduct;
   }
 

@@ -1,7 +1,8 @@
-import { Product, Category } from "../models/models.js";
+import { Product, Category, BasketProduct, FavoriteProduct } from "../models/models.js";
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import { unlink } from 'fs';
+import { sequelize } from "../db.js";
 
 class ProductService {
   async create(params) {
@@ -50,6 +51,43 @@ class ProductService {
     return products;
   }
 
+  async getAllByPersonId(limit, page, id) {
+    page = page || 1;
+    limit = limit || 100;
+    let offset = (page - 1) * limit;
+    const products = await Product.findAndCountAll(
+      {
+        // limit, offset,
+        include: [
+          { model: Category },
+          { model: FavoriteProduct, where: { personId: id }, required: false },
+          {
+            model: BasketProduct,
+            where: { personId: id },
+            required: false,
+          },
+        ],
+        order: [['id', 'DESC']]
+      }
+    );
+
+    for (let i = 0; i < products.rows.length; i++) {
+      if (products.rows[i].dataValues.favorite_products.length > 0) {
+        // products.rows[i].dataValues.isFavorite = true
+        products.rows[i].dataValues.favoriteProduct = products.rows[i].dataValues.favorite_products[0].dataValues;
+      }
+      delete products.rows[i].dataValues.favorite_products;
+
+      if (products.rows[i].dataValues.basket_products.length > 0) {
+        // products.rows[i].dataValues.count = products.rows[i].dataValues.basket_products[0].dataValues.count;
+        // console.log(products.rows[i].dataValues.basket_products[0].dataValues)
+        products.rows[i].dataValues.basketProduct = products.rows[i].dataValues.basket_products[0].dataValues;
+      }
+      delete products.rows[i].dataValues.basket_products;
+    }
+    return products;
+  }
+
   async getOne(id) {
     const product = await Product.findByPk(id, { include: Category });
     return product;
@@ -73,6 +111,7 @@ class ProductService {
     } = params;
 
     const product = await Product.findByPk(id);
+    console.log('\nhola\n');
 
     let fileName = product.mainImage;
     if (file) {

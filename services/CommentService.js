@@ -2,10 +2,12 @@ import { Comment, Person, Product } from "../models/models.js";
 import ApiError from "../error/ApiError.js";
 import ProductService from "./ProductService.js";
 
+// может быть можно добавить фотографии к комментарию
 class CommentService {
   async create(params) {
     const { text, rate, personId, productId } = params;
     const findComment = await Comment.findOne({ where: { personId, productId } });
+    console.log(`\n${JSON.stringify(findComment)}\n`);
     if (findComment) {
       throw ApiError.badRequest('Комментарий пользователя на этот продукт уже существует');
     }

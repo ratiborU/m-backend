@@ -57,34 +57,24 @@ class AuthService {
     if (!person) {
       throw ApiError.badRequest('Неверно указан логин или пароль');
     }
-    // if (!person.dataValues.isActivated) {
-    //   throw ApiError.unauthorized('Ваш аккаунт еще не был активирован через почту');
-    // }
     let comparePassword = bcrypt.compareSync(password, person.dataValues.password)
     if (!comparePassword) {
       throw ApiError.badRequest('Неверно указан логин или пароль');
     }
-    // console.log(person.dataValues.id, person.dataValues.email, person.dataValues.role);
     const params = {
       id: person.dataValues.id,
       email: person.dataValues.email,
       role: person.dataValues.role,
     }
     const tokens = await TokenService.generateJwtAccessAndRefresh(params);
-    // console.log(tokens.accessToken);
     const decoded = jwt.verify(tokens.accessToken, process.env.SECRET_KEY);
-    console.log('decoded: ', decoded);
-    // console.log('hola');
-    // try {
-    //   const token = jwt.sign({ foo: 'bar' }, process.env.SECRET_KEY);
-    //   console.log(token);
-    //   const decoded = jwt.verify(token, process.env.SECRET_KEY);
-    //   console.log(decoded);
-    // } catch (error) {
 
-    // }
-    // 
-    return tokens;
+
+
+    return { 
+      tokens, 
+      person 
+    };
   }
 
   async activate(link) {

@@ -55,7 +55,7 @@ class PersonController {
     try {
       const { email, password } = req.body;
       const tokens = await AuthService.login(email, password);
-      return res.json({ tokens });
+      return res.json(tokens);
     } catch (error) {
       return next(error);
     }
