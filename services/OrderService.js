@@ -1,4 +1,4 @@
-import { Order, Person } from "../models/models.js";
+import { Order, Person, OrderProduct, Product } from "../models/models.js";
 import { BasketProduct } from "../models/models.js";
 import OrderProductService from "./OrderProductService.js";
 
@@ -27,12 +27,22 @@ class OrderService {
   }
 
   async getOne(id) {
-    const order = await Order.findByPk(id, { include: Person });
+    const order = await Order.findByPk(id, {
+      include: [
+        { model: Person },
+        { model: OrderProduct, include: Product }
+      ]
+    });
     return order;
   }
 
   async getAllByPersonId(personId) {
-    const orders = await Order.findAll({ where: { personId }, include: Person });
+    const orders = await Order.findAll({
+      where: { personId }, include: [
+        { model: Person },
+        { model: OrderProduct, include: Product }
+      ]
+    });
     return orders;
   }
 

@@ -21,9 +21,13 @@ class AuthService {
       role
     } = params;
 
-    const candidate = await Person.findOne({ where: { email } });
-    if (candidate) {
+    const candidateEmail = await Person.findOne({ where: { email } });
+    const candidatePhone = await Person.findOne({ where: { phoneNumber } });
+    if (candidateEmail) {
       throw ApiError.badRequest('Пользователь с таким email уже существует');
+    }
+    if (candidatePhone) {
+      throw ApiError.badRequest('Пользователь с таким номером телефона уже существует');
     }
 
     const hashedPassword = await bcrypt.hash(password, 4);
@@ -71,9 +75,9 @@ class AuthService {
 
 
 
-    return { 
-      tokens, 
-      person 
+    return {
+      tokens,
+      person
     };
   }
 

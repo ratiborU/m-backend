@@ -16,7 +16,14 @@ class BasketProductService {
     page = page || 1;
     limit = limit || 100;
     const offset = (page - 1) * limit;
-    const basketProducts = await BasketProduct.findAndCountAll({ limit, offset, include: { model: Product, include: Category } });
+    const basketProducts = await BasketProduct.findAndCountAll({
+      limit, offset,
+      include: { model: Product, include: Category },
+      order: [
+        ['id', 'DESC'],
+        // ['name', 'ASC'],
+      ],
+    });
     return basketProducts;
   }
 
@@ -24,9 +31,12 @@ class BasketProductService {
     page = page || 1;
     limit = limit || 100;
     const offset = (page - 1) * limit;
-    const basketProducts = await BasketProduct.findAndCountAll(
-      { where: { personId }, limit, offset, include: { model: Product, include: Category } }
-    );
+    const basketProducts = await BasketProduct.findAndCountAll({
+      where: { personId },
+      limit, offset,
+      include: { model: Product, include: Category },
+      order: [['id', 'DESC']],
+    });
     return basketProducts;
   }
 

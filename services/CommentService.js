@@ -51,6 +51,13 @@ class CommentService {
     return comments;
   }
 
+  async getOneByPersonAndProductId(personId, productId) {
+    const comments = await Comment.findOne(
+      { where: { personId, productId }, include: [Person, Product] }
+    );
+    return comments;
+  }
+
   async update(params) {
     const { id, text, rate, personId, productId } = params;
     const comment = await Comment.findByPk(id);

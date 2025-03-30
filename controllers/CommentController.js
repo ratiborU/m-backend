@@ -52,6 +52,17 @@ class CommentController {
     }
   }
 
+  // getOneByPersonAndProductId
+  async getOneByPersonAndProductId(req, res, next) {
+    try {
+      const { personId, productId } = req.query;
+      const comment = await CommentService.getOneByPersonAndProductId(personId, productId);
+      return res.json(comment);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async update(req, res, next) {
     try {
       const comment = await CommentService.update(req.body);

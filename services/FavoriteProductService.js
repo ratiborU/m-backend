@@ -58,8 +58,6 @@ class FavoriteProductService {
     const favoriteProduct = await FavoriteProduct.findOne(
       { where: { personId: String(personId), productId: String(productId) } }
     )
-    console.log(String(personId), String(productId));
-    console.log(favoriteProduct)
     await FavoriteProduct.destroy({ where: { id: favoriteProduct.dataValues.id } });
     return favoriteProduct;
   }

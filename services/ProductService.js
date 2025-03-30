@@ -73,14 +73,11 @@ class ProductService {
 
     for (let i = 0; i < products.rows.length; i++) {
       if (products.rows[i].dataValues.favorite_products.length > 0) {
-        // products.rows[i].dataValues.isFavorite = true
         products.rows[i].dataValues.favoriteProduct = products.rows[i].dataValues.favorite_products[0].dataValues;
       }
       delete products.rows[i].dataValues.favorite_products;
 
       if (products.rows[i].dataValues.basket_products.length > 0) {
-        // products.rows[i].dataValues.count = products.rows[i].dataValues.basket_products[0].dataValues.count;
-        // console.log(products.rows[i].dataValues.basket_products[0].dataValues)
         products.rows[i].dataValues.basketProduct = products.rows[i].dataValues.basket_products[0].dataValues;
       }
       delete products.rows[i].dataValues.basket_products;
@@ -90,6 +87,35 @@ class ProductService {
 
   async getOne(id) {
     const product = await Product.findByPk(id, { include: Category });
+    return product;
+  }
+
+  async getOneWithPersonId(id, personId) {
+    const product = await Product.findByPk(id,
+      {
+        include: [
+          { model: Category },
+          { model: FavoriteProduct, where: { personId }, required: false },
+          {
+            model: BasketProduct,
+            where: { personId },
+            required: false,
+          }
+        ]
+      },
+    );
+
+    if (product.dataValues.favorite_products.length > 0) {
+      product.dataValues.favoriteProduct = product.dataValues.favorite_products[0].dataValues;
+    }
+
+    if (product.dataValues.basket_products.length > 0) {
+      product.dataValues.basketProduct = product.dataValues.basket_products[0].dataValues;
+    }
+
+    delete product.dataValues.favorite_products;
+    delete product.dataValues.basket_products;
+
     return product;
   }
 
@@ -111,7 +137,6 @@ class ProductService {
     } = params;
 
     const product = await Product.findByPk(id);
-    console.log('\nhola\n');
 
     let fileName = product.mainImage;
     if (file) {

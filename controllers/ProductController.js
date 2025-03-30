@@ -45,6 +45,16 @@ class ProductController {
     try {
       const { id } = req.params;
       const product = await ProductService.getOne(id);
+
+      if (req.headers.authorization) {
+        const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.SECRET_KEY);
+        const product = await ProductService.getOneWithPersonId(id, decoded.id);
+        return res.json(product);
+      } else {
+        const products = await ProductService.getOne(id);
+        return res.json(products);
+      }
+
       return res.json(product);
     } catch (error) {
       next(error);
