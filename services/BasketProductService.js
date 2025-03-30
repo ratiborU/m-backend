@@ -14,7 +14,7 @@ class BasketProductService {
 
   async getAll(limit, page) {
     page = page || 1;
-    limit = limit || 100;
+    limit = limit || 1000;
     const offset = (page - 1) * limit;
     const basketProducts = await BasketProduct.findAndCountAll({
       limit, offset,
@@ -29,7 +29,7 @@ class BasketProductService {
 
   async getAllByPersonId(limit, page, personId) {
     page = page || 1;
-    limit = limit || 100;
+    limit = limit || 1000;
     const offset = (page - 1) * limit;
     const basketProducts = await BasketProduct.findAndCountAll({
       where: { personId },

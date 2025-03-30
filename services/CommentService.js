@@ -18,7 +18,7 @@ class CommentService {
 
   async getAll(limit, page) {
     page = page || 1;
-    limit = limit || 100;
+    limit = limit || 1000;
     const offset = (page - 1) * limit;
     const comments = await Comment.findAndCountAll({ limit, offset, include: [Person, Product] });
     return comments;
@@ -33,17 +33,24 @@ class CommentService {
   // нужно потестить
   async getAllByProductId(productId, limit, page) {
     page = page || 1;
-    limit = limit || 100;
+    limit = limit || 1000;
     const offset = (page - 1) * limit;
-    const comments = await Comment.findAndCountAll(
-      { where: { productId }, limit, offset, include: [Person, Product] }
-    );
+    const comments = await Comment.findAndCountAll({
+      where: { productId },
+      limit,
+      offset,
+      include: [
+        { model: Person, attributes: ['id', 'firstName', 'secondName', 'fatherName'] },
+        Product
+      ],
+      order: [['id', 'DESC']],
+    });
     return comments;
   }
 
   async getAllByPersonId(personId, limit, page) {
     page = page || 1;
-    limit = limit || 100;
+    limit = limit || 1000;
     const offset = (page - 1) * limit;
     const comments = await Comment.findAndCountAll(
       { where: { personId }, limit, offset, include: [Person, Product] }

@@ -9,7 +9,7 @@ class AnswerService {
 
   async getAll(limit, page) {
     page = page || 1;
-    limit = limit || 100;
+    limit = limit || 1000;
     let offset = (page - 1) * limit;
     const answers = await Answer.findAndCountAll({ limit, offset });
     return answers;

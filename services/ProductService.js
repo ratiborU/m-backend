@@ -45,7 +45,7 @@ class ProductService {
 
   async getAll(limit, page) {
     page = page || 1;
-    limit = limit || 100;
+    limit = limit || 1000;
     let offset = (page - 1) * limit;
     const products = await Product.findAndCountAll({ limit, offset, include: Category });
     return products;
@@ -53,7 +53,7 @@ class ProductService {
 
   async getAllByPersonId(limit, page, id) {
     page = page || 1;
-    limit = limit || 100;
+    limit = limit || 1000;
     let offset = (page - 1) * limit;
     const products = await Product.findAndCountAll(
       {

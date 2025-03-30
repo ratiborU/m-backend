@@ -17,7 +17,7 @@ class FavoriteProductService {
   // сделать include в products для того чтобы в ленте отслеживать какие товары добавлены в избранное а какие нет
   async getAll(limit, page) {
     page = page || 1;
-    limit = limit || 100;
+    limit = limit || 1000;
     const offset = (page - 1) * limit;
     const favoriteProducts = await FavoriteProduct.findAndCountAll({ limit, offset, include: { model: Product, include: Category } });
     return favoriteProducts;
@@ -25,7 +25,7 @@ class FavoriteProductService {
 
   async getAllByPersonId(limit, page, personId) {
     page = page || 1;
-    limit = limit || 100;
+    limit = limit || 1000;
     const offset = (page - 1) * limit;
     const favoriteProducts = await FavoriteProduct.findAndCountAll(
       { where: { personId }, limit, offset, include: { model: Product, include: Category } }

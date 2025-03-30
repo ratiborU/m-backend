@@ -19,7 +19,7 @@ class OrderService {
 
   async getAll(limit, page) {
     page = page || 1;
-    limit = limit || 100;
+    limit = limit || 1000;
     let offset = (page - 1) * limit;
     const orders = await Order.findAndCountAll({ limit, offset, include: Person });
     // const orders = await Order.findAll();
@@ -41,7 +41,8 @@ class OrderService {
       where: { personId }, include: [
         { model: Person },
         { model: OrderProduct, include: Product }
-      ]
+      ],
+      order: [['id', 'DESC']],
     });
     return orders;
   }
