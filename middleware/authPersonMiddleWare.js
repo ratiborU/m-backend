@@ -11,12 +11,9 @@ const authPersonMiddleWare = (req, res, next) => {
     }
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
 
-    console.log(decoded);
-
     // + query personId
     if (decoded.role != "ADMIN") {
       if ((req.method == 'GET' || req.method == 'DELETE') && decoded.id != req.params.id) {
-        console.log(1);
         return res.status(403).json({ message: 'У пользователя нет доступа' });
       }
       if (req.method == 'PUT' && req.baseUrl == '/api/persons' && decoded.id != req.body.id) {

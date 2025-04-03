@@ -7,7 +7,6 @@ class CommentService {
   async create(params) {
     const { text, rate, personId, productId } = params;
     const findComment = await Comment.findOne({ where: { personId, productId } });
-    console.log(`\n${JSON.stringify(findComment)}\n`);
     if (findComment) {
       throw ApiError.badRequest('Комментарий пользователя на этот продукт уже существует');
     }

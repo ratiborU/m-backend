@@ -9,10 +9,12 @@ import { authPersonMiddleWare } from "../middleware/authPersonMiddleWare.js";
 const personRouter = new Router();
 
 personRouter.post('', authAdminMiddleWare, PersonController.create);
+personRouter.post('/empty', PersonController.createEmpty);
+
 personRouter.post('/registration',
-  body('email').isEmail(),
-  body('password').isLength({ min: 8, max: 32 }),
-  body('phoneNumber').isLength({ min: 10, max: 11 }),
+  // body('email').isEmail(),
+  // body('password').isLength({ min: 8, max: 32 }),
+  // body('phoneNumber').isLength({ min: 10, max: 11 }),
   PersonController.registration
 );
 personRouter.post('/login', PersonController.login);

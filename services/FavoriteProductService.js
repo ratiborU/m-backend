@@ -1,5 +1,5 @@
 import ApiError from "../error/ApiError.js";
-import { Category, FavoriteProduct, Product } from "../models/models.js";
+import { BasketProduct, Category, FavoriteProduct, Product } from "../models/models.js";
 
 class FavoriteProductService {
   async create(params) {
@@ -8,9 +8,7 @@ class FavoriteProductService {
     if (product) {
       throw ApiError.badRequest('Товар уже давблен в избранное данного пользователя');
     }
-    console.log('hola');
     const favoriteProduct = await FavoriteProduct.create({ productId, personId });
-    console.log('hola');
     return favoriteProduct;
   }
 
@@ -27,9 +25,27 @@ class FavoriteProductService {
     page = page || 1;
     limit = limit || 1000;
     const offset = (page - 1) * limit;
-    const favoriteProducts = await FavoriteProduct.findAndCountAll(
-      { where: { personId }, limit, offset, include: { model: Product, include: Category } }
+    const favoriteProducts = await FavoriteProduct.findAll(
+      {
+        where: { personId },
+        include: {
+          model: Product,
+          include: [
+            Category,
+            { model: BasketProduct, where: { personId }, required: false }
+
+          ]
+        }
+      }
     );
+
+    for (let i = 0; i < favoriteProducts.length; i++) {
+      if (favoriteProducts[i].dataValues.product.dataValues.basket_products.length > 0) {
+        favoriteProducts[i].dataValues.product.dataValues.basketProduct = favoriteProducts[i].dataValues.product.dataValues.basket_products[0].dataValues
+      }
+      delete favoriteProducts[i].dataValues.product.dataValues.basket_products;
+    }
+
     return favoriteProducts;
   }
 

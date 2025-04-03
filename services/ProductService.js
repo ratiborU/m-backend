@@ -18,7 +18,12 @@ class ProductService {
       commentsCount,
       productsCount,
       categoryId,
-      file = ''
+      file = '',
+      stone,
+      size,
+      material,
+      fasteningType,
+      amount
     } = params;
     let fileName = '';
     if (file) {
@@ -38,7 +43,12 @@ class ProductService {
       commentsCount,
       productsCount,
       categoryId,
-      mainImage: fileName
+      mainImage: fileName,
+      stone,
+      size,
+      material,
+      fasteningType,
+      amount
     });
     return product;
   }
@@ -82,6 +92,7 @@ class ProductService {
       }
       delete products.rows[i].dataValues.basket_products;
     }
+
     return products;
   }
 
@@ -133,12 +144,17 @@ class ProductService {
       commentsCount,
       productsCount,
       categoryId,
-      file
+      file,
+      stone,
+      size,
+      material,
+      fasteningType,
+      amount
     } = params;
 
     const product = await Product.findByPk(id);
 
-    let fileName = product.mainImage;
+    let fileName = product.dataValues.mainImage;
     if (file) {
       fileName = uuidv4() + ".jpg";
       await file.mv(path.resolve('static', fileName));
@@ -159,7 +175,12 @@ class ProductService {
       commentsCount: commentsCount || product.commentsCount,
       productsCount: productsCount || product.productsCount,
       categoryId: categoryId || product.categoryId,
-      mainImage: fileName
+      mainImage: fileName,
+      stone: stone || product.stone,
+      size: size || product.size,
+      material: material || product.material,
+      fasteningType: fasteningType || product.fasteningType,
+      amount: amount || product.amount
     }, {
       where: { id }
     });

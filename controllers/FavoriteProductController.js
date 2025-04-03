@@ -62,9 +62,6 @@ class FavoriteProductController {
 
   async deleteByPersonAndProductId(req, res, next) {
     try {
-      console.log();
-      console.log('hola');
-      console.log();
       const { productId, personId } = req.body;
       const favoriteProduct = await FavoriteProductService.deleteByPersonAndProductId(personId, productId);
       return res.json(favoriteProduct);

@@ -26,14 +26,12 @@ class ProductController {
       if (req.headers.authorization) {
         const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.SECRET_KEY);
         const products = await ProductService.getAllByPersonId(limit, page, decoded.id);
-        // console.log(products[0].dataValues);
         return res.json(products);
       } else {
         const products = await ProductService.getAll(limit, page);
         return res.json(products);
       }
       // const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.SECRET_KEY);
-      // console.log(decoded);
       // const products = await ProductService.getAll(limit, page);
       // return res.json(products);
     } catch (error) {

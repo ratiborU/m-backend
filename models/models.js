@@ -8,8 +8,10 @@ const Person = sequelize.define('person', {
   firstName: { type: DataTypes.STRING, allowNull: false },
   secondName: { type: DataTypes.STRING, allowNull: false },
   fatherName: { type: DataTypes.STRING },
-  email: { type: DataTypes.STRING, unique: true, allowNull: false },
-  phoneNumber: { type: DataTypes.STRING, unique: true }, // сделать уникальным или вообще убрать
+  // email: { type: DataTypes.STRING, unique: true, allowNull: false },
+  // phoneNumber: { type: DataTypes.STRING, unique: true }, // сделать уникальным или вообще убрать
+  email: { type: DataTypes.STRING },
+  phoneNumber: { type: DataTypes.STRING },
   password: { type: DataTypes.STRING },
   role: { type: DataTypes.STRING, defaultValue: "PERSON" },
   isActivated: { type: DataTypes.BOOLEAN, defaultValue: false },
@@ -31,6 +33,11 @@ const Product = sequelize.define('product', {
   commentsCount: { type: DataTypes.INTEGER },
   productsCount: { type: DataTypes.INTEGER },
   mainImage: { type: DataTypes.STRING, allowNull: true },
+  stone: { type: DataTypes.STRING },
+  size: { type: DataTypes.STRING },
+  material: { type: DataTypes.STRING },
+  fasteningType: { type: DataTypes.STRING },
+  amount: { type: DataTypes.INTEGER, defaultValue: 12 },
   // categoryId: {type: DataTypes.STRING},
 });
 

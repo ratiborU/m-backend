@@ -31,8 +31,20 @@ class PersonController {
       if (!errors.isEmpty()) {
         return next(ApiError.badRequest('Ошибка при валидации'));
       }
-      const activationLink = await AuthService.registration(req.body);
-      return res.json(activationLink);
+      if (req.headers.authorization) {
+        const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.SECRET_KEY);
+        if (decoded.email == '') {
+          const activationLink = await AuthService.registrationFromEmpty({ ...req.body, id: decoded.id });
+          return res.json(activationLink);
+        } else {
+          const activationLink = await AuthService.registration(req.body);
+          return res.json(activationLink);
+        }
+      } else {
+        const activationLink = await AuthService.registration(req.body);
+        return res.json(activationLink);
+      }
+      return res.json('заглушка');
     } catch (error) {
       return next(error);
     }
@@ -51,6 +63,15 @@ class PersonController {
     }
   }
 
+  async createEmpty(req, res, next) {
+    try {
+      const activationLink = await AuthService.createEmpty();
+      return res.json(activationLink);
+    } catch (error) {
+      return next(error);
+    }
+  }
+
   async login(req, res, next) {
     try {
       const { email, password } = req.body;
@@ -63,8 +84,8 @@ class PersonController {
 
   // а она нужна вообще, лучше сделать на фронте
   async logout(req, res, next) {
-    res.clearCookie('refreshToken');
-    return res.json('Вы успешно вышли');
+    // res.clearCookie('refreshToken');
+    return res.json('logout completed succesfully');
   }
 
   // по какой-то причине не работает активация
