@@ -8,9 +8,9 @@ import orderProductRouter from "./OrderProductRouter.js";
 import orderRouter from "./OrderRouter.js";
 import personRouter from "./PersonRouter.js";
 import productRouter from "./ProductRouter.js";
+import categoryRouter from "./CategoryRouter.js";
 
 const router = new Router();
-
 router.use('/answers', answerRouter);
 router.use('/basketProducts', basketProductRouter);
 router.use('/comments', commentRouter);
@@ -20,5 +20,6 @@ router.use('/orderProducts', orderProductRouter);
 router.use('/orders', orderRouter);
 router.use('/persons', personRouter);
 router.use('/products', productRouter);
+router.use('/categories', categoryRouter);
 
 export { router };

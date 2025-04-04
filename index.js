@@ -39,8 +39,8 @@ app.use(errorHandler);
 const start = async () => {
   try {
     await sequelize.authenticate();
-    // создает таблицу заного
-    // await sequelize.sync({ force: true });
+    // await sequelize.sync({ force: true });  // удаляет существующую таблицу и создает новую
+    // await sequelize.sync({ alter: true }); // приводит таблицу в соответствие с моделью
     app.listen(PORT, () => console.log('server started on port ' + PORT))
   } catch (error) {
     console.log(error);

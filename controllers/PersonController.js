@@ -10,134 +10,150 @@ import AuthService from "../services/AuthService.js";
 import PersonService from "../services/PersonService.js";
 
 const generateJwt = (id, email, role, time) => {
-    return jwt.sign(
-        { id, email, role }, 
-        process.env.SECRET_KEY,
-        {expiresIn: time}
-    )
+  return jwt.sign(
+    { id, email, role },
+    process.env.SECRET_KEY,
+    { expiresIn: time }
+  )
 }
 
 const generateJwtAccessAndRefresh = (id, email, role) => {
-    return ({
-        accessToken: generateJwt(id, email, role, '30m'),
-        refreshToken: generateJwt(id, email, role, '30d'),
-    })
+  return ({
+    accessToken: generateJwt(id, email, role, '30m'),
+    refreshToken: generateJwt(id, email, role, '30d'),
+  })
 }
 
 class PersonController {
-    async registration(req, res, next) {
-        try {
-            const errors = validationResult(req);
-            if (!errors.isEmpty()) {
-                return next(ApiError.badRequest('Ошибка при валидации'));
-            }
-            const activationLink = await AuthService.registration(req.body);
-            return res.json(activationLink);
-        } catch (error) {
-            return next(error);
-        }
-    }
-
-    async create(req, res, next) {
-      try {
-          const errors = validationResult(req);
-          if (!errors.isEmpty()) {
-              return next(ApiError.badRequest('Ошибка при валидации'));
-          }
-          const activationLink = await PersonService.create(req.body);
-          return res.json(activationLink);
-      } catch (error) {
-          return next(error);
+  async registration(req, res, next) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return next(ApiError.badRequest('Ошибка при валидации'));
       }
+      if (req.headers.authorization) {
+        const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.SECRET_KEY);
+        if (decoded.email == '') {
+          const activationLink = await AuthService.registrationFromEmpty({ ...req.body, id: decoded.id });
+          return res.json(activationLink);
+        } else {
+          const activationLink = await AuthService.registration(req.body);
+          return res.json(activationLink);
+        }
+      } else {
+        const activationLink = await AuthService.registration(req.body);
+        return res.json(activationLink);
+      }
+      return res.json('заглушка');
+    } catch (error) {
+      return next(error);
+    }
   }
 
-    async login(req, res, next) {
-        try {
-            const { email, password } = req.body;
-            const tokens = await AuthService.login(email, password);
-            // console.log(tokens);
-            res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
-            return res.json({ tokens });
-        } catch (error) {
-            return next(error);
-        }
+  async create(req, res, next) {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return next(ApiError.badRequest('Ошибка при валидации'));
+      }
+      const activationLink = await PersonService.create(req.body);
+      return res.json(activationLink);
+    } catch (error) {
+      return next(error);
     }
+  }
 
-    // а она нужна вообще, лучше сделать на фронте
-    async logout(req, res, next) {
-        res.clearCookie('refreshToken');
-        return res.json('Вы успешно вышли');
+  async createEmpty(req, res, next) {
+    try {
+      const activationLink = await AuthService.createEmpty();
+      return res.json(activationLink);
+    } catch (error) {
+      return next(error);
     }
+  }
 
-    // по какой-то причине не работает активация
-    async activate(req, res, next) {
-        try {
-            const { link } = req.params;
-            await AuthService.activate(link);
-            // console.log('activation');
-            return res.redirect(process.env.CLIENT_URL);
-            // return res.json(process.env.CLIENT_URL);
-        } catch (error) {
-            return next(error);
-        }
+  async login(req, res, next) {
+    try {
+      const { email, password } = req.body;
+      const tokens = await AuthService.login(email, password);
+      return res.json(tokens);
+    } catch (error) {
+      return next(error);
     }
+  }
 
-    async refresh(req, res, next) {
-        try {
-            const { refreshToken } = req.body;
-            const tokens = await AuthService.refresh(refreshToken);
-            res.cookie('refreshToken', tokens.refreshToken, {maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true});
-            return res.json({ tokens });
-        } catch (error) {
-            return next(error);
-        }
-    }
+  // а она нужна вообще, лучше сделать на фронте
+  async logout(req, res, next) {
+    // res.clearCookie('refreshToken');
+    return res.json('logout completed succesfully');
+  }
 
-    async auth(req, res, next) {
-        const { id, email, role } = req.person;
-        const token = generateJwt(id, email, role, '30m');
-        res.json({ token });
+  // по какой-то причине не работает активация
+  async activate(req, res, next) {
+    try {
+      const { link } = req.params;
+      await AuthService.activate(link);
+      return res.redirect(process.env.CLIENT_URL);
+      // return res.json(process.env.CLIENT_URL);
+    } catch (error) {
+      return next(error);
     }
+  }
 
-    async getAll(req, res, next) {
-        try {
-            let { limit, page } = req.query;
-            const persons = await PersonService.getAll(limit, page);
-            return res.json(persons);
-        } catch (error) {
-            next(error);
-        }
+  async refresh(req, res, next) {
+    try {
+      const { refreshToken } = req.body;
+      const tokens = await AuthService.refresh(refreshToken);
+      return res.json({ tokens });
+    } catch (error) {
+      return next(error);
     }
+  }
 
-    async getOne(req, res, next) {
-        try {
-            const { id } = req.params;
-            console.log('getOne');
-            const person = await PersonService.getOne(id);
-            return res.json(person);
-        } catch (error) {
-            next(error);
-        }
-    }
+  async auth(req, res, next) {
+    const { id, email, role } = req.person;
+    const token = generateJwt(id, email, role, '30m');
+    res.json({ token });
+  }
 
-    async update(req, res, next) {
-        try {
-            const person = await PersonService.update(req.body);
-            return res.json(person);
-        } catch (error) {
-            next(error);
-        }
+  async getAll(req, res, next) {
+    try {
+      let { limit, page } = req.query;
+      const persons = await PersonService.getAll(limit, page);
+      return res.json(persons);
+    } catch (error) {
+      next(error);
     }
+  }
 
-    async delete(req, res, next) {
-        try {
-            const { id } = req.params;
-            const person = await PersonService.delete(id);
-            return res.json(person);
-        } catch (error) {
-            next(error);
-        }
+  async getOne(req, res, next) {
+    try {
+      const { id } = req.params;
+      const person = await PersonService.getOne(id);
+      return res.json(person);
+    } catch (error) {
+      next(error);
     }
+  }
+
+  async update(req, res, next) {
+    try {
+      const person = await PersonService.update(req.body);
+      return res.json(person);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async delete(req, res, next) {
+    try {
+      const { id } = req.params;
+      const person = await PersonService.delete(id);
+      return res.json(person);
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
 export default new PersonController();

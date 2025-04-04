@@ -1,29 +1,50 @@
 import { sequelize } from "../db.js";
 import { DataTypes } from "sequelize";
 
+// paranoid: true
+
 const Person = sequelize.define('person', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   firstName: { type: DataTypes.STRING, allowNull: false },
   secondName: { type: DataTypes.STRING, allowNull: false },
   fatherName: { type: DataTypes.STRING },
-  email: { type: DataTypes.STRING, unique: true, allowNull: false },
-  phoneNumber: { type: DataTypes.STRING }, // сделать уникальным или вообще убрать
+  // email: { type: DataTypes.STRING, unique: true, allowNull: false },
+  // phoneNumber: { type: DataTypes.STRING, unique: true }, // сделать уникальным или вообще убрать
+  email: { type: DataTypes.STRING },
+  phoneNumber: { type: DataTypes.STRING },
   password: { type: DataTypes.STRING },
   role: { type: DataTypes.STRING, defaultValue: "PERSON" },
   isActivated: { type: DataTypes.BOOLEAN, defaultValue: false },
   activationLink: { type: DataTypes.STRING },
+  isBlocked: { type: DataTypes.BOOLEAN, defaultValue: false },
 });
 
 // возможно нужно добавить ссылку на главное изображение товара
 const Product = sequelize.define('product', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  title: { type: DataTypes.STRING, allowNull: false },
+  name: { type: DataTypes.STRING, allowNull: false },
   description: { type: DataTypes.STRING, allowNull: false },
+  seoTitle: { type: DataTypes.STRING, allowNull: true },
+  seoDescription: { type: DataTypes.STRING, allowNull: true },
   characteristics: { type: DataTypes.STRING },
   price: { type: DataTypes.INTEGER, allowNull: false },
+  discount: { type: DataTypes.INTEGER, allowNull: true },
   rate: { type: DataTypes.FLOAT },
   commentsCount: { type: DataTypes.INTEGER },
+  productsCount: { type: DataTypes.INTEGER },
   mainImage: { type: DataTypes.STRING, allowNull: true },
+  stone: { type: DataTypes.STRING },
+  size: { type: DataTypes.STRING },
+  material: { type: DataTypes.STRING },
+  fasteningType: { type: DataTypes.STRING },
+  amount: { type: DataTypes.INTEGER, defaultValue: 12 },
+  // categoryId: {type: DataTypes.STRING},
+});
+
+const Category = sequelize.define('category', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  name: { type: DataTypes.STRING, allowNull: false },
+  description: { type: DataTypes.STRING, allowNull: false },
 });
 
 const Image = sequelize.define('image', {
@@ -53,9 +74,11 @@ const Order = sequelize.define('order', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   price: { type: DataTypes.INTEGER, allowNull: false },
   address: { type: DataTypes.STRING, allowNull: false },
-  // date: {type: DataTypes.DATE, allowNull: false},
+  delivery: { type: DataTypes.STRING, allowNull: false },
+  deliveryDays: { type: DataTypes.STRING, allowNull: false },
   comment: { type: DataTypes.STRING },
   status: { type: DataTypes.STRING, allowNull: false },
+  // date: {type: DataTypes.DATE, allowNull: false},
   // personId: {type: DataTypes.STRING},
 });
 
@@ -115,6 +138,10 @@ BasketProduct.belongsTo(Person);
 Person.hasMany(FavoriteProduct);
 FavoriteProduct.belongsTo(Person);
 
+// Category
+Category.hasMany(Product);
+Product.belongsTo(Category);
+
 // Comment
 Comment.hasMany(Answer);
 Answer.belongsTo(Comment);
@@ -126,6 +153,7 @@ OrderProduct.belongsTo(Order);
 export {
   Person,
   Product,
+  Category,
   Image,
   Comment,
   Answer,

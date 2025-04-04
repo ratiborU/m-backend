@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-const authMiddleWare = (req, res, next) => {
+const authAdminMiddleWare = (req, res, next) => {
   if (req.method == "OPTIONS") {
     next();
   }
@@ -11,7 +11,9 @@ const authMiddleWare = (req, res, next) => {
     }
     const decoded = jwt.verify(token, process.env.SECRET_KEY);
 
-    // добавить случай когда пользователь не активировал аккаунт
+    if (decoded.role !== "ADMIN") {
+      return res.status(403).json({ message: 'У пользователя нет доступа' });
+    }
     req.person = decoded;
     next();
   } catch (error) {
@@ -19,4 +21,4 @@ const authMiddleWare = (req, res, next) => {
   }
 };
 
-export { authMiddleWare };
+export { authAdminMiddleWare };

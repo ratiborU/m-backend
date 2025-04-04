@@ -1,12 +1,16 @@
 import { Product } from "../models/models.js";
 import ApiError from "../error/ApiError.js";
+import jwt from "jsonwebtoken";
 
 import ProductService from "../services/ProductService.js";
 
 class ProductController {
   async create(req, res, next) {
     try {
-      const { file } = req.files;
+      let file;
+      if (req.files) {
+        file = req.files.file;
+      }
       const product = await ProductService.create({ ...req.body, file });
       return res.json(product);
     } catch (error) {
@@ -17,8 +21,19 @@ class ProductController {
   async getAll(req, res, next) {
     try {
       let { limit, page } = req.query;
-      const products = await ProductService.getAll(limit, page);
-      return res.json(products);
+      // нужно не просто проверить на существование 
+      // а проверить на правильность декодирования
+      if (req.headers.authorization) {
+        const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.SECRET_KEY);
+        const products = await ProductService.getAllByPersonId(limit, page, decoded.id);
+        return res.json(products);
+      } else {
+        const products = await ProductService.getAll(limit, page);
+        return res.json(products);
+      }
+      // const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.SECRET_KEY);
+      // const products = await ProductService.getAll(limit, page);
+      // return res.json(products);
     } catch (error) {
       next(error);
     }
@@ -28,6 +43,16 @@ class ProductController {
     try {
       const { id } = req.params;
       const product = await ProductService.getOne(id);
+
+      if (req.headers.authorization) {
+        const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.SECRET_KEY);
+        const product = await ProductService.getOneWithPersonId(id, decoded.id);
+        return res.json(product);
+      } else {
+        const products = await ProductService.getOne(id);
+        return res.json(products);
+      }
+
       return res.json(product);
     } catch (error) {
       next(error);
@@ -36,11 +61,11 @@ class ProductController {
 
   async update(req, res, next) {
     try {
-      // console.log('\n', req.files.file, '\n');
       let file;
       if (req.files) {
         file = req.files.file;
       }
+
       const product = await ProductService.update({ ...req.body, file });
       return res.json(product);
     } catch (error) {
