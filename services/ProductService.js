@@ -158,9 +158,11 @@ class ProductService {
     if (file) {
       fileName = uuidv4() + ".jpg";
       await file.mv(path.resolve('static', fileName));
-      unlink(path.resolve('static', product.dataValues.mainImage), (error) => {
-        console.log("file was deleted!");
-      });
+      if (product.dataValues.mainImage) {
+        unlink(path.resolve('static', product.dataValues.mainImage), (error) => {
+          console.log("file was deleted!");
+        });
+      }
     }
 
     await Product.update({

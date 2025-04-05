@@ -32,7 +32,7 @@ class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 4);
     const activationLink = uuidv4();
-    const fullActivationLink = `http://localhost:5000/api/persons/activate/${activationLink}`;
+    const fullActivationLink = `${process.env.SERVER_URL}/persons/activate/${activationLink}`;
 
     // отправка письма на почту
     // MailService.sendActivationLink(email, fullActivationLink);
@@ -84,7 +84,7 @@ class AuthService {
 
     const hashedPassword = await bcrypt.hash(password, 4);
     const activationLink = uuidv4();
-    const fullActivationLink = `http://localhost:5000/api/persons/activate/${activationLink}`;
+    const fullActivationLink = `${process.env.SERVER_URL}/persons/activate/${activationLink}`;
 
     // отправка письма на почту
     // MailService.sendActivationLink(email, fullActivationLink);
