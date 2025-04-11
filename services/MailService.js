@@ -34,6 +34,37 @@ class MailService {
 
     return { tokens: '' };
   }
+
+  async sendStatusInfo(email, status) {
+    console.log('\ngmail\n');
+    const transporter = nodemailer.createTransport({
+      service: 'gmail', // Use Gmail as the email service
+      auth: {
+        user: process.env.MAIL_USER, // Your Gmail email address
+        pass: process.env.MAIL_APP_PASS // Your Gmail password
+      }
+    });
+
+    const mailOptions = {
+      from: process.env.MAIL_USER, // Sender's email address
+      to: email, // Recipient's email address
+      subject: 'Изменение статуса заказа', // Subject line
+      text: '', // Plain text body
+      // потом сделать красивую обложку (адаптивную)
+      html: `<p>Статус вашего заказа на ninamed.ru изменен на ${status}</p>`
+    };
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.log(error);
+      } else {
+        console.log('Email sent: ' + info.response);
+      }
+    });
+
+
+    return { tokens: '' };
+  }
 }
 
 export default new MailService;

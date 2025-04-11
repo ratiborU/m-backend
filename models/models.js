@@ -103,6 +103,36 @@ const FavoriteProduct = sequelize.define('favorite_product', {
   // personId: {type: DataTypes.STRING},
 });
 
+const Coupon = sequelize.define('coupon', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  value: { type: DataTypes.STRING, defaultValue: "ninamed10" },
+  text: { type: DataTypes.STRING, allowNull: true, },
+  discount: { type: DataTypes.STRING, defaultValue: "10%" },
+  minPrice: { type: DataTypes.INTEGER, defaultValue: 0 },
+  maxDiscount: { type: DataTypes.STRING, defaultValue: "30%" },
+  isOnceOnly: { type: DataTypes.BOOLEAN, defaultValue: false },
+  // productId: {type: DataTypes.STRING},
+  // personId: {type: DataTypes.STRING},
+});
+
+const UsedCoupon = sequelize.define('used_coupon', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  // productId: {type: DataTypes.STRING},
+  // personId: {type: DataTypes.STRING},
+});
+
+const ProductHistory = sequelize.define('product_history', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  count: { type: DataTypes.INTEGER, defaultValue: 0 },
+  inOrderCount: { type: DataTypes.INTEGER, defaultValue: 0 },
+  viewsCount: { type: DataTypes.INTEGER, defaultValue: 0 },
+  isInFavorite: { type: DataTypes.BOOLEAN, defaultValue: false },
+  recomendationK: { type: DataTypes.INTEGER, defaultValue: 0 },
+  // productId: {type: DataTypes.STRING},
+  // personId: {type: DataTypes.STRING},
+});
+
+
 // Product
 Product.hasMany(Image);
 Image.belongsTo(Product);
@@ -118,6 +148,7 @@ BasketProduct.belongsTo(Product);
 
 Product.hasMany(FavoriteProduct);
 FavoriteProduct.belongsTo(Product);
+
 
 // Person
 Person.hasMany(Comment);
@@ -138,17 +169,44 @@ BasketProduct.belongsTo(Person);
 Person.hasMany(FavoriteProduct);
 FavoriteProduct.belongsTo(Person);
 
+
 // Category
 Category.hasMany(Product);
 Product.belongsTo(Category);
+
 
 // Comment
 Comment.hasMany(Answer);
 Answer.belongsTo(Comment);
 
+
 // Order
 Order.hasMany(OrderProduct);
 OrderProduct.belongsTo(Order);
+
+
+// Coupon
+Person.hasMany(Coupon);
+Coupon.belongsTo(Person);
+
+Product.hasMany(Coupon);
+Coupon.belongsTo(Product);
+
+
+// UsedCoupon
+Coupon.hasMany(UsedCoupon);
+UsedCoupon.belongsTo(Coupon);
+
+Person.hasMany(UsedCoupon);
+UsedCoupon.belongsTo(Person);
+
+
+// ProductHistory
+Person.hasMany(ProductHistory);
+ProductHistory.belongsTo(Person);
+
+Product.hasMany(ProductHistory);
+ProductHistory.belongsTo(Product);
 
 export {
   Person,
@@ -160,6 +218,9 @@ export {
   Order,
   OrderProduct,
   BasketProduct,
-  FavoriteProduct
+  FavoriteProduct,
+  Coupon,
+  UsedCoupon,
+  ProductHistory
 };
 

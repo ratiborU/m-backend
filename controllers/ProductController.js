@@ -3,6 +3,7 @@ import ApiError from "../error/ApiError.js";
 import jwt from "jsonwebtoken";
 
 import ProductService from "../services/ProductService.js";
+import ProductHistoryService from "../services/ProductHistoryService.js";
 
 class ProductController {
   async create(req, res, next) {
@@ -47,6 +48,7 @@ class ProductController {
       if (req.headers.authorization) {
         const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.SECRET_KEY);
         const product = await ProductService.getOneWithPersonId(id, decoded.id);
+        ProductHistoryService.updateView(product.dataValues.id, decoded.id)
         return res.json(product);
       } else {
         const products = await ProductService.getOne(id);

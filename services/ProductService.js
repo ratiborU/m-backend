@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import { unlink } from 'fs';
 import { sequelize } from "../db.js";
+import ProductHistoryService from "./ProductHistoryService.js";
 
 class ProductService {
   async create(params) {
@@ -25,6 +26,7 @@ class ProductService {
       fasteningType,
       amount
     } = params;
+
     let fileName = '';
     if (file) {
       fileName = uuidv4() + ".jpg";
@@ -50,6 +52,7 @@ class ProductService {
       fasteningType,
       amount
     });
+
     return product;
   }
 
@@ -98,6 +101,7 @@ class ProductService {
 
   async getOne(id) {
     const product = await Product.findByPk(id, { include: Category });
+
     return product;
   }
 
