@@ -1,5 +1,6 @@
 import { OrderProduct, BasketProduct, Product, Order, Category } from "../models/models.js";
 import ApiError from "../error/ApiError.js";
+import ProductHistoryService from "./ProductHistoryService.js";
 
 class OrderProductService {
   async create(params) {
@@ -18,6 +19,8 @@ class OrderProductService {
 
     for (const product of orderProducts) {
       const { id, productId, count } = product
+      await ProductHistoryService.updateCount(productId, personId, count)
+      await ProductHistoryService.updateInOrderCount(productId, personId)
       await BasketProduct.destroy({ where: { id } });
       await this.create({ productId, orderId, count });
     }

@@ -1,6 +1,8 @@
 import { Order, Person, OrderProduct, Product } from "../models/models.js";
 import { BasketProduct } from "../models/models.js";
 import OrderProductService from "./OrderProductService.js";
+import { UsedCoupon } from "../models/models.js";
+import MailService from "./MailService.js";
 
 class OrderService {
   async create(params) {
@@ -11,9 +13,22 @@ class OrderService {
     // не знаю где прикручивать оплату здесь или на сервере
 
     // выкидывать ошибку если товары не найдены лучше в orderProductService
-    const { price, address, comment, status, delivery, deliveryDays, personId } = params;
+    const {
+      price,
+      address,
+      comment,
+      status,
+      delivery,
+      deliveryDays,
+      personId,
+      couponId
+    } = params;
+
     const order = await Order.create({ price, address, comment, status, delivery, deliveryDays, personId });
     await OrderProductService.createFromPersonBasket(personId, order.dataValues.id);
+    if (!!couponId) {
+      await UsedCoupon.create({ couponId, personId })
+    }
     return order;
   }
 
@@ -49,10 +64,25 @@ class OrderService {
 
   async update(params) {
     const { id, price, address, comment, status, delivery, deliveryDays, personId } = params;
-    await Order.update(
-      { price, address, comment, status, delivery, deliveryDays, personId },
-      { where: { id } }
+    const order = await Order.findByPk(id);
+    await Order.update({
+      price: price || order.dataValues.price,
+      address: address || order.dataValues.address,
+      comment: comment || order.dataValues.comment,
+      status: status || order.dataValues.status,
+      delivery: delivery || order.dataValues.delivery,
+      deliveryDays: deliveryDays || order.dataValues.deliveryDays,
+      personId: personId || order.dataValues.personId
+    }, {
+      where: { id }
+    }
     );
+    const person = await Person.findByPk(personId);
+    console.log(person.dataValues.email);
+    if (person && order.dataValues.status != status && status != '') {
+      MailService.sendStatusInfo(person.dataValues.email, status);
+    }
+
     const updatedOrder = await Order.findByPk(id);
     return updatedOrder;
   }
