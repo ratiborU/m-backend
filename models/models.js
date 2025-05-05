@@ -23,7 +23,7 @@ const Person = sequelize.define('person', {
 const Product = sequelize.define('product', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   name: { type: DataTypes.STRING, allowNull: false },
-  description: { type: DataTypes.STRING, allowNull: false },
+  description: { type: DataTypes.STRING(2047), allowNull: false },
   seoTitle: { type: DataTypes.STRING, allowNull: true },
   seoDescription: { type: DataTypes.STRING, allowNull: true },
   characteristics: { type: DataTypes.STRING },
@@ -55,7 +55,7 @@ const Image = sequelize.define('image', {
 
 const Comment = sequelize.define('comment', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  text: { type: DataTypes.STRING },
+  text: { type: DataTypes.STRING(1023) },
   rate: { type: DataTypes.INTEGER, allowNull: false },
   // date: {type: DataTypes.DATE, allowNull: false},
   // personId: {type: DataTypes.STRING},
@@ -176,7 +176,7 @@ Product.belongsTo(Category);
 
 
 // Comment
-Comment.hasMany(Answer);
+Comment.hasOne(Answer);
 Answer.belongsTo(Comment);
 
 

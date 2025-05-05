@@ -23,6 +23,7 @@ class AuthService {
 
     const candidateEmail = await Person.findOne({ where: { email } });
     const candidatePhone = await Person.findOne({ where: { phoneNumber } });
+
     if (candidateEmail) {
       throw ApiError.badRequest('Пользователь с таким email уже существует');
     }
@@ -35,7 +36,7 @@ class AuthService {
     const fullActivationLink = `${process.env.SERVER_URL}/persons/activate/${activationLink}`;
 
     // отправка письма на почту
-    // MailService.sendActivationLink(email, fullActivationLink);
+    MailService.sendActivationLink(email, fullActivationLink);
 
     const person = await Person.create({
       firstName,
@@ -49,7 +50,6 @@ class AuthService {
     });
 
     const tokens = await this.login(person.dataValues.email, password)
-
     return { tokens };
   }
 

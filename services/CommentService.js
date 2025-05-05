@@ -1,4 +1,4 @@
-import { Comment, Person, Product } from "../models/models.js";
+import { Answer, Comment, Person, Product } from "../models/models.js";
 import ApiError from "../error/ApiError.js";
 import ProductService from "./ProductService.js";
 
@@ -19,12 +19,12 @@ class CommentService {
     page = page || 1;
     limit = limit || 1000;
     const offset = (page - 1) * limit;
-    const comments = await Comment.findAndCountAll({ limit, offset, include: [Person, Product] });
+    const comments = await Comment.findAndCountAll({ limit, offset, include: [Person, Product, Answer] });
     return comments;
   }
 
   async getOne(id) {
-    const comment = await Comment.findByPk(id, { include: [Person, Product] });
+    const comment = await Comment.findByPk(id, { include: [Person, Product, Answer] });
     // если не нашел выкинуть ошибку
     return comment;
   }
@@ -40,7 +40,8 @@ class CommentService {
       offset,
       include: [
         { model: Person, attributes: ['id', 'firstName', 'secondName', 'fatherName'] },
-        Product
+        Product,
+        Answer
       ],
       order: [['id', 'DESC']],
     });
@@ -48,11 +49,11 @@ class CommentService {
   }
 
   async getAllByPersonId(personId, limit, page) {
-    page = page || 1;
-    limit = limit || 1000;
-    const offset = (page - 1) * limit;
-    const comments = await Comment.findAndCountAll(
-      { where: { personId }, limit, offset, include: [Person, Product] }
+    // page = page || 1;
+    // limit = limit || 1000;
+    // const offset = (page - 1) * limit;
+    const comments = await Comment.findAll(
+      { where: { personId }, include: [Person, Product, Answer] }
     );
     return comments;
   }
