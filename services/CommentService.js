@@ -1,6 +1,8 @@
 import { Answer, Comment, Person, Product } from "../models/models.js";
 import ApiError from "../error/ApiError.js";
 import ProductService from "./ProductService.js";
+import LoyalService from "./LoyalService.js";
+import { ProductHistory } from "../models/models.js";
 
 // может быть можно добавить фотографии к комментарию
 class CommentService {
@@ -10,9 +12,29 @@ class CommentService {
     if (findComment) {
       throw ApiError.badRequest('Комментарий пользователя на этот продукт уже существует');
     }
+    const productHistory = await ProductHistory.findOne({ where: { personId, productId } });
+    if (productHistory) {
+      await ProductHistory.update(
+        { rate },
+        { where: { personId, productId } }
+      )
+    } else {
+      await ProductHistory.create({ personId, productId, rate })
+    }
     const comment = await Comment.create({ text, rate, personId, productId });
+    console.log(text);
+    console.log(text.split(' ').length);
+    if (text.split(' ').length > 10) {
+      await LoyalService.addPoints(personId, 50);
+    } else if (text.split(' ').length > 1) {
+      await LoyalService.addPoints(personId, 30)
+    } else {
+      await LoyalService.addPoints(personId, 20)
+    }
+
     await ProductService.addRate(productId, rate);
     return comment;
+    // return {}
   }
 
   async getAll(limit, page) {

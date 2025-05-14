@@ -36,7 +36,7 @@ class AuthService {
     const fullActivationLink = `${process.env.SERVER_URL}/persons/activate/${activationLink}`;
 
     // отправка письма на почту
-    MailService.sendActivationLink(email, fullActivationLink);
+    // MailService.sendActivationLink(email, fullActivationLink);
 
     const person = await Person.create({
       firstName,
