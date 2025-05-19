@@ -22,8 +22,6 @@ class CommentService {
       await ProductHistory.create({ personId, productId, rate })
     }
     const comment = await Comment.create({ text, rate, personId, productId });
-    console.log(text);
-    console.log(text.split(' ').length);
     if (text.split(' ').length > 10) {
       await LoyalService.addPoints(personId, 50);
     } else if (text.split(' ').length > 1) {

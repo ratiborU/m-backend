@@ -1,5 +1,5 @@
 import ApiError from "../error/ApiError.js";
-import { Person } from "../models/models.js";
+import { Person, Loyal } from "../models/models.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from 'uuid';
@@ -100,6 +100,13 @@ class AuthService {
     }, {
       where: { id }
     });
+
+    const loyal = await Loyal.findOne({ where: { personId: id } })
+    if (!loyal) {
+      const loyal = await Loyal.create({
+        personId: id
+      })
+    }
 
     const tokens = await this.login(email, password)
     return tokens;

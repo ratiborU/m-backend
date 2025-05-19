@@ -136,6 +136,17 @@ class ProductService {
     return product;
   }
 
+  async updateCount(params) {
+    const { id, productsCount, sellCount } = params;
+
+    await Product.update({
+      productsCount,
+      sellCount
+    }, {
+      where: { id }
+    });
+  }
+
   async update(params) {
     const {
       id,

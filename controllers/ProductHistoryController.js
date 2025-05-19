@@ -24,7 +24,6 @@ class ProductHistoryController {
   async getAllByPersonId(req, res) {
     try {
       const { id } = req.params;
-      console.log('\n\n\nhola\n');
       const productsHistory = await ProductHistoryService.getAllByPersonId(id);
       return res.json(productsHistory);
     } catch (error) {

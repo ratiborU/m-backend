@@ -1,6 +1,7 @@
 import { OrderProduct, BasketProduct, Product, Order, Category } from "../models/models.js";
 import ApiError from "../error/ApiError.js";
 import ProductHistoryService from "./ProductHistoryService.js";
+import ProductService from "./ProductService.js";
 
 class OrderProductService {
   async create(params) {
@@ -14,13 +15,18 @@ class OrderProductService {
   }
 
   async createFromPersonBasket(personId, orderId) {
-    const basketProducts = await BasketProduct.findAll({ where: { personId, inOrder: true } });
+    const basketProducts = await BasketProduct.findAll({ where: { personId, inOrder: true }, include: Product });
     const orderProducts = basketProducts.map(x => x.dataValues);
 
     for (const product of orderProducts) {
       const { id, productId, count } = product
       await ProductHistoryService.updateCount(productId, personId, count)
       await ProductHistoryService.updateInOrderCount(productId, personId)
+      await ProductService.updateCount({
+        id: product.product.dataValues.id,
+        productsCount: product.product.dataValues.productsCount - count,
+        sellCount: product.product.dataValues.sellCount + count
+      })
       await BasketProduct.destroy({ where: { id } });
       await this.create({ productId, orderId, count });
     }

@@ -9,7 +9,7 @@ const couponRouter = new Router();
 
 couponRouter.post('', authAdminMiddleWare, CouponController.create);
 couponRouter.get('', authAdminMiddleWare, CouponController.getAll);
-// couponRouter.get('/:id', CouponController.getOne);
+couponRouter.get('/getOneById/:id', CouponController.getOne);
 couponRouter.get('/check/', CouponController.check);
 couponRouter.put('/', authAdminMiddleWare, CouponController.update);
 couponRouter.delete('/:id', authAdminMiddleWare, CouponController.delete);

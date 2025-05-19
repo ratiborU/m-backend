@@ -30,6 +30,16 @@ class LoyalController {
     }
   }
 
+  async getOneByPersonId(req, res) {
+    try {
+      const { id } = req.params;
+      const loyal = await LoyalService.getOneByPersonId(id);
+      return res.json(loyal);
+    } catch (error) {
+      next(error);
+    }
+  }
+
   async update(req, res) {
     try {
       const loyal = await LoyalService.update(req.body);

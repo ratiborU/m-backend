@@ -1,22 +1,31 @@
-import { Coupon, UsedCoupon } from "../models/models.js";
+import { Coupon, UsedCoupon, Person } from "../models/models.js";
 
 class CouponService {
   async create(params) {
-    const { value, discount, text, minPrice, maxDiscount, personId, productId } = params;
+    const {
+      value,
+      discount,
+      text,
+      // minPrice,
+      // maxDiscount,
+      personId = null,
+      productId = null
+    } = params;
+
     const coupon = await Coupon.create({
       value,
       text,
       discount,
-      minPrice,
-      maxDiscount,
-      personId,
+      // minPrice,
+      // maxDiscount,
+      personId: personId || null,
       productId,
     })
     return coupon;
   }
 
   async getAll() {
-    const coupons = await Coupon.findAll();
+    const coupons = await Coupon.findAll({ include: Person });
     return coupons;
   }
 
@@ -27,14 +36,18 @@ class CouponService {
 
   // провить на то использовали ли его ранее
   async check(value, personId) {
-    console.log(value, personId);
     const coupon = await Coupon.findOne({ where: { value } });
-    console.log(coupon);
     if (coupon === null) {
       return null
     }
-    const usedCoupon = await UsedCoupon.findOne({ where: { couponId: coupon.dataValues.id, personId } })
-    console.log(usedCoupon);
+    const usedCoupon = await UsedCoupon.findOne(
+      {
+        where: {
+          couponId: coupon.dataValues.id,
+          personId
+        }
+      }
+    )
     if (usedCoupon !== null) {
       return null
     }
@@ -43,16 +56,13 @@ class CouponService {
   }
 
   async update(params) {
-    const { id, discount, minPrice, maxDiscount, personId, productId } = params;
+    const { id, value, text, discount, minPrice, maxDiscount, personId, productId } = params;
     const coupon = await Coupon.findByPk(id);
     await Coupon.update({
-      value: value || coupon.dataValues.value,
-      text: text || coupon.dataValues.text,
-      discount: discount || coupon.dataValues.discount,
-      minPrice: minPrice || coupon.dataValues.minPrice,
-      maxDiscount: maxDiscount || coupon.dataValues.maxDiscount,
-      personId: personId || coupon.dataValues.personId,
-      productId: productId || coupon.dataValues.productId,
+      value,
+      text,
+      discount,
+      personId: Number(personId),
     }, {
       where: { id }
     });

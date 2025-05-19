@@ -8,7 +8,8 @@ const loyalRouter = new Router();
 
 loyalRouter.post('', authAdminMiddleWare, LoyalController.create);
 loyalRouter.get('', authAdminMiddleWare, LoyalController.getAll);
-loyalRouter.get('/:id', authPersonMiddleWare, LoyalController.getOne);
+loyalRouter.get('/byId/:id', authPersonMiddleWare, LoyalController.getOne);
+loyalRouter.get('/byPersonId/:id', authPersonMiddleWare, LoyalController.getOneByPersonId);
 loyalRouter.put('/', LoyalController.update);
 loyalRouter.delete('/:id', authAdminMiddleWare, LoyalController.delete);
 

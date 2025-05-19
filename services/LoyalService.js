@@ -44,7 +44,7 @@ class LoyalService {
 
   async addPoints(personId, pointsAdd) {
     const loyal = await Loyal.findOne({ where: { personId } });
-    // console.log(loyal);
+
     await Loyal.update(
       { points: loyal.dataValues.points + pointsAdd },
       { where: { personId } }
@@ -56,14 +56,11 @@ class LoyalService {
   async addTotal(personId, addTotal) {
     const loyal = await Loyal.findOne({ where: { personId } });
     if (loyal.dataValues.total + addTotal >= 50000) {
-      console.log(Number(loyal.dataValues.total) + Number(addTotal));
       await Loyal.update(
         { total: Number(loyal.dataValues.total) + Number(addTotal), cashback: 5 },
         { where: { personId } }
       );
-      console.log('hola u u');
     } else {
-      console.log('hola u2');
       await Loyal.update(
         { total: Number(loyal.dataValues.total) + Number(addTotal) },
         { where: { personId } }

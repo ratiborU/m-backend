@@ -33,7 +33,6 @@ class ProductHistoryService {
   }
 
   async getAllByPersonId(personId) {
-    console.log(personId);
     const products = await ProductHistory.findAll({
       include: Product,
       where: { personId }

@@ -1,5 +1,7 @@
 import { where } from "sequelize";
 import { ProductTFIDF, Product, ProductHistory, Category } from "../models/models.js";
+import PersonService from "./PersonService.js";
+import ProductService from "./ProductService.js";
 
 const notWords = new Set([
   'и', 'да', 'но', 'за', 'под', 'я',
@@ -43,8 +45,8 @@ const kg = {
   d: 0.50, // rate
 };
 const k = {
-  a: 0.62, // personal
-  b: 0.38, // general
+  a: 0.85, // personal
+  b: 0.15, // general
 };
 
 
@@ -102,7 +104,6 @@ class RecomendationService {
     for (const product of products) {
       const tfidfProduct = await ProductTFIDF.findOne({ where: { productId: product.dataValues.id } })
       if (!tfidfProduct) {
-        console.log('create');
         await ProductTFIDF.create({
           tfidfs: [{
             term: '',
@@ -120,7 +121,7 @@ class RecomendationService {
     return products;
   }
 
-  async getSimularProductsByProductId(productId) {
+  async getSimularProductsByProductId(productId, personId) {
     const productsTFIDF = await ProductTFIDF.findAll({ include: Product });
     const productTFIDF = await ProductTFIDF.findOne({ where: { productId } });
     const simularTFIDF = productsTFIDF.map(x => ({
@@ -130,24 +131,36 @@ class RecomendationService {
     }));
 
     const result = simularTFIDF.sort((a, b) => b.cosSim - a.cosSim).map((x) => x.product.dataValues)
-    return result.filter(x => x.id != productId);
+
+    const products3 = await ProductService.getAllByPersonId(1000, 1, personId);
+    const products = products3.rows;
+    const productsByIds = products.reduce((acc, cur) => {
+      acc[cur.dataValues.id] = cur.dataValues;
+      return acc;
+    }, {});
+
+    const result2 = result.map(x => productsByIds[x.id])
+
+    return result2.filter(x => x.id != productId);
   }
 
   async getRecomendationByPersonId(personId) {
     // Приведение массива в объект с ключами в виде id продукта
-    const products = await Product.findAll();
+    // const products2 = await Product.findAll();
+    const products3 = await ProductService.getAllByPersonId(1000, 1, personId);
+    const products = products3.rows;
     const productsByKeys = products.reduce((acc, product) => {
       acc[product.dataValues.id] = product.dataValues;
       return acc;
     }, {});
     // return 4
     const productsHistory = await ProductHistory.findAll({ where: { personId }, include: Product });
-    console.log('hola 1');
+
     const productsHistoryByKeys = productsHistory.reduce((acc, product) => {
       acc[product.dataValues.productId] = product.dataValues;
       return acc;
     }, {});
-    console.log('hola 2');
+
     // Составление рекомендательного коеффициента для каждого продукта
     const productsRecomendations = products.reduce((acc, cur) => {
       const ph = productsHistoryByKeys[cur.dataValues.id] || {
@@ -174,44 +187,46 @@ class RecomendationService {
       }
       const kGeneral = kg.a * p.sellCount + kg.b * p.inOrdersCount + kg.c * p.commentsCount + kg.d * (3.9 - (p.rate || 0));
       const kResult = k.a * kPersonal + k.b * kGeneral;
+      console.log(kPersonal, kGeneral);
       acc[cur.dataValues.id] = kResult;
       return acc;
     }, {})
-    console.log('hola 3');
+
     // 
     const objectedProducts = Object.keys(productsRecomendations).map(x => ({
       productId: x,
       k: productsRecomendations[x]
     }));
     const sortedProducts = objectedProducts.sort((a, b) => b.k - a.k).slice(0, 4);
-    console.log('hola 4');
+
 
     // обновление рекомендательных коэффициентов для тех продуктов 
     // которые похожи на любимые продукты пользователя но которые
     // тот еще не покупал
     for (const productIdK of sortedProducts) {
-      // console.log(productIdK.productId);
-      const simulars = await this.getSimularProductsByProductId(productIdK.productId);
-      // console.log(simulars.length);
+      const simulars = await this.getSimularProductsByProductId(productIdK.productId, personId);
       const simularsFiltered = simulars.filter((x) => {
-        // console.log(productsHistoryByKeys[x.id]);
         if (productsHistoryByKeys[x.id] == undefined) {
           return true
         }
         return productsHistoryByKeys[x.id].count == 0
       });
-      console.log('hallo!');
       if (simularsFiltered.length != 0) {
         const simular = simularsFiltered[0];
         productsRecomendations[simular.id] += 0.7 * productsRecomendations[productIdK.productId];
       }
     }
-    console.log(productsRecomendations);
+    // console.log(productsRecomendations);
     // return []
     // составление отсортированного массива продуктов в порядке
     // убывания рекомендательного коэффициента
     const recomendationsEntries = Object.entries(productsRecomendations).sort((a, b) => b[1] - a[1]);
     const recomendations = recomendationsEntries.map(x => productsByKeys[x[0]]);
+    console.log(recomendations.map(x => ({
+      productId: x.id,
+      name: x.name.slice(0, 12),
+      rec: productsRecomendations[x.id]
+    })));
     return recomendations;
   }
 

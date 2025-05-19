@@ -92,7 +92,6 @@ class OrderService {
     }
     );
     const person = await Person.findByPk(personId);
-    console.log(person.dataValues.email);
     if (person && order.dataValues.status != status && status != '') {
       MailService.sendStatusInfo(person.dataValues.email, status);
     }
