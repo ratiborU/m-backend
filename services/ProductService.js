@@ -173,6 +173,7 @@ class ProductService {
     const product = await Product.findByPk(id);
 
     let fileName = product.dataValues.mainImage;
+    console.log(file);
     if (file) {
       fileName = uuidv4() + ".jpg";
       await file.mv(path.resolve('static', fileName));
@@ -182,6 +183,7 @@ class ProductService {
         });
       }
     }
+    console.log('fileName');
 
     await Product.update({
       name: name || product.name,
@@ -194,7 +196,7 @@ class ProductService {
       rate: rate || product.rate,
       commentsCount: commentsCount || product.commentsCount,
       productsCount: productsCount || product.productsCount,
-      categoryCharacteristics: JSON.parse(categoryCharacteristics) || product.categoryCharacteristics,
+      categoryCharacteristics: categoryCharacteristics ? JSON.parse(categoryCharacteristics) : product.categoryCharacteristics,
       categoryId: categoryId || product.categoryId,
       mainImage: fileName,
       // stone: stone || product.stone,

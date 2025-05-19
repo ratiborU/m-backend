@@ -152,6 +152,13 @@ class AuthService {
     }
     const tokens = await TokenService.generateJwtAccessAndRefresh(params);
 
+    const loyal = await Loyal.findOne({ where: { personId: person.dataValues.id } })
+    if (!loyal) {
+      const loyal = await Loyal.create({
+        personId: person.dataValues.id
+      })
+    }
+
     return {
       tokens,
       person,
