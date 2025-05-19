@@ -1,6 +1,8 @@
-import { Comment, Person, Product } from "../models/models.js";
+import { Answer, Comment, Person, Product } from "../models/models.js";
 import ApiError from "../error/ApiError.js";
 import ProductService from "./ProductService.js";
+import LoyalService from "./LoyalService.js";
+import { ProductHistory } from "../models/models.js";
 
 // может быть можно добавить фотографии к комментарию
 class CommentService {
@@ -10,21 +12,39 @@ class CommentService {
     if (findComment) {
       throw ApiError.badRequest('Комментарий пользователя на этот продукт уже существует');
     }
+    const productHistory = await ProductHistory.findOne({ where: { personId, productId } });
+    if (productHistory) {
+      await ProductHistory.update(
+        { rate },
+        { where: { personId, productId } }
+      )
+    } else {
+      await ProductHistory.create({ personId, productId, rate })
+    }
     const comment = await Comment.create({ text, rate, personId, productId });
+    if (text.split(' ').length > 10) {
+      await LoyalService.addPoints(personId, 50);
+    } else if (text.split(' ').length > 1) {
+      await LoyalService.addPoints(personId, 30)
+    } else {
+      await LoyalService.addPoints(personId, 20)
+    }
+
     await ProductService.addRate(productId, rate);
     return comment;
+    // return {}
   }
 
   async getAll(limit, page) {
     page = page || 1;
     limit = limit || 1000;
     const offset = (page - 1) * limit;
-    const comments = await Comment.findAndCountAll({ limit, offset, include: [Person, Product] });
+    const comments = await Comment.findAndCountAll({ limit, offset, include: [Person, Product, Answer] });
     return comments;
   }
 
   async getOne(id) {
-    const comment = await Comment.findByPk(id, { include: [Person, Product] });
+    const comment = await Comment.findByPk(id, { include: [Person, Product, Answer] });
     // если не нашел выкинуть ошибку
     return comment;
   }
@@ -40,7 +60,8 @@ class CommentService {
       offset,
       include: [
         { model: Person, attributes: ['id', 'firstName', 'secondName', 'fatherName'] },
-        Product
+        Product,
+        Answer
       ],
       order: [['id', 'DESC']],
     });
@@ -48,11 +69,11 @@ class CommentService {
   }
 
   async getAllByPersonId(personId, limit, page) {
-    page = page || 1;
-    limit = limit || 1000;
-    const offset = (page - 1) * limit;
-    const comments = await Comment.findAndCountAll(
-      { where: { personId }, limit, offset, include: [Person, Product] }
+    // page = page || 1;
+    // limit = limit || 1000;
+    // const offset = (page - 1) * limit;
+    const comments = await Comment.findAll(
+      { where: { personId }, include: [Person, Product, Answer] }
     );
     return comments;
   }

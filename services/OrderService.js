@@ -3,6 +3,7 @@ import { BasketProduct } from "../models/models.js";
 import OrderProductService from "./OrderProductService.js";
 import { UsedCoupon } from "../models/models.js";
 import MailService from "./MailService.js";
+import LoyalService from "./LoyalService.js";
 
 class OrderService {
   async create(params) {
@@ -21,22 +22,35 @@ class OrderService {
       delivery,
       deliveryDays,
       personId,
-      couponId
+      couponId,
+      usePoints = false
     } = params;
 
-    const order = await Order.create({ price, address, comment, status, delivery, deliveryDays, personId });
+    const loyal = await LoyalService.getOneByPersonId(personId)
+    let finalPrice = price;
+    if (usePoints) {
+      const maxPoints = Math.min(Math.floor(price * 0.30), loyal.points);
+      finalPrice = price - maxPoints;
+      await LoyalService.removePoints(personId, maxPoints)
+    }
+    await LoyalService.addPoints(personId, Math.floor(finalPrice * loyal.cashback / 100));
+    await LoyalService.addTotal(personId, finalPrice)
+    const order = await Order.create({ price: finalPrice, address, comment, status, delivery, deliveryDays, personId });
     await OrderProductService.createFromPersonBasket(personId, order.dataValues.id);
     if (!!couponId) {
       await UsedCoupon.create({ couponId, personId })
     }
     return order;
+    return {}
   }
 
   async getAll(limit, page) {
-    page = page || 1;
-    limit = limit || 1000;
-    let offset = (page - 1) * limit;
-    const orders = await Order.findAndCountAll({ limit, offset, include: Person });
+    const orders = await Order.findAll({
+      include: [
+        { model: Person },
+        { model: OrderProduct, include: Product }
+      ]
+    });
     // const orders = await Order.findAll();
     return orders;
   }
@@ -78,7 +92,6 @@ class OrderService {
     }
     );
     const person = await Person.findByPk(personId);
-    console.log(person.dataValues.email);
     if (person && order.dataValues.status != status && status != '') {
       MailService.sendStatusInfo(person.dataValues.email, status);
     }

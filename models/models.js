@@ -16,28 +16,31 @@ const Person = sequelize.define('person', {
   role: { type: DataTypes.STRING, defaultValue: "PERSON" },
   isActivated: { type: DataTypes.BOOLEAN, defaultValue: false },
   activationLink: { type: DataTypes.STRING },
-  isBlocked: { type: DataTypes.BOOLEAN, defaultValue: false },
+  // isBlocked: { type: DataTypes.BOOLEAN, defaultValue: false },
 });
 
 // возможно нужно добавить ссылку на главное изображение товара
 const Product = sequelize.define('product', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   name: { type: DataTypes.STRING, allowNull: false },
-  description: { type: DataTypes.STRING, allowNull: false },
-  seoTitle: { type: DataTypes.STRING, allowNull: true },
-  seoDescription: { type: DataTypes.STRING, allowNull: true },
+  description: { type: DataTypes.STRING(2047), allowNull: false },
+  seoTitle: { type: DataTypes.STRING, defaultValue: '', allowNull: true },
+  seoDescription: { type: DataTypes.STRING, defaultValue: '', allowNull: true },
   characteristics: { type: DataTypes.STRING },
+  categoryCharacteristics: { type: DataTypes.JSON },
   price: { type: DataTypes.INTEGER, allowNull: false },
   discount: { type: DataTypes.INTEGER, allowNull: true },
-  rate: { type: DataTypes.FLOAT },
-  commentsCount: { type: DataTypes.INTEGER },
-  productsCount: { type: DataTypes.INTEGER },
+  rate: { type: DataTypes.FLOAT, defaultValue: 0 },
+  commentsCount: { type: DataTypes.INTEGER, defaultValue: 0 },
+  productsCount: { type: DataTypes.INTEGER, defaultValue: 0 },
   mainImage: { type: DataTypes.STRING, allowNull: true },
-  stone: { type: DataTypes.STRING },
-  size: { type: DataTypes.STRING },
-  material: { type: DataTypes.STRING },
-  fasteningType: { type: DataTypes.STRING },
-  amount: { type: DataTypes.INTEGER, defaultValue: 12 },
+  // stone: { type: DataTypes.STRING },
+  // size: { type: DataTypes.STRING },
+  // material: { type: DataTypes.STRING },
+  // fasteningType: { type: DataTypes.STRING },
+  // amount: { type: DataTypes.INTEGER, defaultValue: 12 },
+  sellCount: { type: DataTypes.INTEGER, defaultValue: 0 },
+  inOrdersCount: { type: DataTypes.INTEGER, defaultValue: 0 },
   // categoryId: {type: DataTypes.STRING},
 });
 
@@ -45,6 +48,7 @@ const Category = sequelize.define('category', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   name: { type: DataTypes.STRING, allowNull: false },
   description: { type: DataTypes.STRING, allowNull: false },
+  parameters: { type: DataTypes.JSON, allowNull: true },
 });
 
 const Image = sequelize.define('image', {
@@ -55,7 +59,7 @@ const Image = sequelize.define('image', {
 
 const Comment = sequelize.define('comment', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  text: { type: DataTypes.STRING },
+  text: { type: DataTypes.STRING(1023) },
   rate: { type: DataTypes.INTEGER, allowNull: false },
   // date: {type: DataTypes.DATE, allowNull: false},
   // personId: {type: DataTypes.STRING},
@@ -125,11 +129,26 @@ const ProductHistory = sequelize.define('product_history', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
   count: { type: DataTypes.INTEGER, defaultValue: 0 },
   inOrderCount: { type: DataTypes.INTEGER, defaultValue: 0 },
-  viewsCount: { type: DataTypes.INTEGER, defaultValue: 0 },
+  viewsCount: { type: DataTypes.INTEGER, defaultValue: 1 },
   isInFavorite: { type: DataTypes.BOOLEAN, defaultValue: false },
-  recomendationK: { type: DataTypes.INTEGER, defaultValue: 0 },
+  rate: { type: DataTypes.INTEGER, defaultValue: 0, allowNull: true },
+  // recomendationK: { type: DataTypes.INTEGER, defaultValue: 0 },
   // productId: {type: DataTypes.STRING},
   // personId: {type: DataTypes.STRING},
+});
+
+const Loyal = sequelize.define('loyal', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  points: { type: DataTypes.INTEGER, defaultValue: 0 }, // points count
+  cashback: { type: DataTypes.INTEGER, defaultValue: 2 }, // 2 or 5%
+  total: { type: DataTypes.INTEGER, defaultValue: 0 }, // total spend 5% from 50 000
+  // personId: {type: DataTypes.STRING},
+});
+
+const ProductTFIDF = sequelize.define('product_tfidf', {
+  id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
+  tfidfs: { type: DataTypes.ARRAY(DataTypes.JSON) },
+  // productId: {type: DataTypes.STRING},
 });
 
 
@@ -176,7 +195,7 @@ Product.belongsTo(Category);
 
 
 // Comment
-Comment.hasMany(Answer);
+Comment.hasOne(Answer);
 Answer.belongsTo(Comment);
 
 
@@ -208,6 +227,14 @@ ProductHistory.belongsTo(Person);
 Product.hasMany(ProductHistory);
 ProductHistory.belongsTo(Product);
 
+// Loyal
+Person.hasOne(Loyal);
+Loyal.belongsTo(Person);
+
+// ProductTFIDF
+Product.hasOne(ProductTFIDF);
+ProductTFIDF.belongsTo(Product);
+
 export {
   Person,
   Product,
@@ -221,6 +248,8 @@ export {
   FavoriteProduct,
   Coupon,
   UsedCoupon,
-  ProductHistory
+  ProductHistory,
+  Loyal,
+  ProductTFIDF
 };
 

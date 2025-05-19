@@ -31,12 +31,10 @@ class MailService {
       }
     });
 
-
     return { tokens: '' };
   }
 
   async sendStatusInfo(email, status) {
-    console.log('\ngmail\n');
     const transporter = nodemailer.createTransport({
       service: 'gmail', // Use Gmail as the email service
       auth: {

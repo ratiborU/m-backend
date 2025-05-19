@@ -2,8 +2,8 @@ import { Category } from "../models/models.js";
 
 class CategoryService {
   async create(params) {
-    const { name, description } = params;
-    const category = await Category.create({ name, description })
+    const { name, description, parameters } = params;
+    const category = await Category.create({ name, description, parameters })
     return category;
   }
 
@@ -15,25 +15,15 @@ class CategoryService {
     return categories;
   }
 
-  async getAllByCommentId(commentId) {
-    const categories = await Category.findAll({ where: { commentId } });
-    return categories;
-  }
-
-  async getAllByPersonId(personId) {
-    const category = await Category.findAll({ where: { personId } });
-    return category;
-  }
-
   async getOne(id) {
     const category = Category.findByPk(id);
     return category;
   }
 
   async update(params) {
-    const { id, name, description } = params;
+    const { id, name, description, parameters } = params;
     await Category.update(
-      { name, description },
+      { name, description, parameters },
       { where: { id } }
     );
     const updatedAnswer = await Category.findByPk(id);

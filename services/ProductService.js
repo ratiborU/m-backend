@@ -19,12 +19,13 @@ class ProductService {
       commentsCount,
       productsCount,
       categoryId,
+      categoryCharacteristics,
       file = '',
-      stone,
-      size,
-      material,
-      fasteningType,
-      amount
+      // stone,
+      // size,
+      // material,
+      // fasteningType,
+      // amount
     } = params;
 
     let fileName = '';
@@ -44,13 +45,14 @@ class ProductService {
       rate,
       commentsCount,
       productsCount,
+      categoryCharacteristics: JSON.parse(categoryCharacteristics),
       categoryId,
       mainImage: fileName,
-      stone,
-      size,
-      material,
-      fasteningType,
-      amount
+      // stone,
+      // size,
+      // material,
+      // fasteningType,
+      // amount
     });
 
     return product;
@@ -134,6 +136,17 @@ class ProductService {
     return product;
   }
 
+  async updateCount(params) {
+    const { id, productsCount, sellCount } = params;
+
+    await Product.update({
+      productsCount,
+      sellCount
+    }, {
+      where: { id }
+    });
+  }
+
   async update(params) {
     const {
       id,
@@ -147,13 +160,14 @@ class ProductService {
       rate,
       commentsCount,
       productsCount,
+      categoryCharacteristics,
       categoryId,
       file,
-      stone,
-      size,
-      material,
-      fasteningType,
-      amount
+      // stone,
+      // size,
+      // material,
+      // fasteningType,
+      // amount
     } = params;
 
     const product = await Product.findByPk(id);
@@ -180,13 +194,14 @@ class ProductService {
       rate: rate || product.rate,
       commentsCount: commentsCount || product.commentsCount,
       productsCount: productsCount || product.productsCount,
+      categoryCharacteristics: JSON.parse(categoryCharacteristics) || product.categoryCharacteristics,
       categoryId: categoryId || product.categoryId,
       mainImage: fileName,
-      stone: stone || product.stone,
-      size: size || product.size,
-      material: material || product.material,
-      fasteningType: fasteningType || product.fasteningType,
-      amount: amount || product.amount
+      // stone: stone || product.stone,
+      // size: size || product.size,
+      // material: material || product.material,
+      // fasteningType: fasteningType || product.fasteningType,
+      // amount: amount || product.amount
     }, {
       where: { id }
     });
