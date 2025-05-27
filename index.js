@@ -18,6 +18,7 @@ import {
   BasketProduct,
   FavoriteProduct
 } from "./models/models.js";
+// import { YooCheckout } from '@a2seven/yoo-checkout';
 
 
 dotenv.config();
@@ -35,6 +36,12 @@ app.use('/api', router);
 
 // самый последний
 app.use(errorHandler);
+
+// const YooKassa = new YooCheckout({
+//   shopId: '1055221',
+//   // вынести в env !!!
+//   secretKey: 'test_gekjRStM_JZNuRFEW7zZvpNugurxuKyrFQXJ9uvYqAE'
+// });
 
 
 const start = async () => {

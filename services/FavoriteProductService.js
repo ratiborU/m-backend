@@ -1,5 +1,5 @@
 import ApiError from "../error/ApiError.js";
-import { BasketProduct, Category, FavoriteProduct, Product } from "../models/models.js";
+import { BasketProduct, Category, FavoriteProduct, Product, ProductHistory } from "../models/models.js";
 
 class FavoriteProductService {
   async create(params) {
@@ -9,6 +9,19 @@ class FavoriteProductService {
       throw ApiError.badRequest('Товар уже давблен в избранное данного пользователя');
     }
     const favoriteProduct = await FavoriteProduct.create({ productId, personId });
+
+    const productHistory = await ProductHistory.findOne({ where: { productId } });
+    if (!productHistory) {
+      await ProductHistory.create({
+        isInFavorite: true
+      })
+    } else {
+      await ProductHistory.update({
+        isInFavorite: true
+      }, {
+        where: { productId }
+      })
+    }
     return favoriteProduct;
   }
 
@@ -67,6 +80,11 @@ class FavoriteProductService {
   async delete(id) {
     const favoriteProduct = await FavoriteProduct.findByPk(id)
     await FavoriteProduct.destroy({ where: { id } });
+    await ProductHistory.update({
+      isInFavorite: false
+    }, {
+      where: { productId: favoriteProduct.dataValues.productId }
+    })
     return favoriteProduct;
   }
 
@@ -75,6 +93,11 @@ class FavoriteProductService {
       { where: { personId: String(personId), productId: String(productId) } }
     )
     await FavoriteProduct.destroy({ where: { id: favoriteProduct.dataValues.id } });
+    await ProductHistory.update({
+      isInFavorite: false
+    }, {
+      where: { productId: favoriteProduct.dataValues.productId }
+    })
     return favoriteProduct;
   }
 }

@@ -12,8 +12,8 @@ class OrderController {
 
   async getAll(req, res, next) {
     try {
-      let { limit, page } = req.query;
-      const orders = await OrderService.getAll(limit, page);
+      // let { limit, page } = req.query;
+      const orders = await OrderService.getAll();
       return res.json(orders);
     } catch (error) {
       next(error);

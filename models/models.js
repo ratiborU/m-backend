@@ -22,14 +22,14 @@ const Person = sequelize.define('person', {
 // возможно нужно добавить ссылку на главное изображение товара
 const Product = sequelize.define('product', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  name: { type: DataTypes.STRING, allowNull: false },
-  description: { type: DataTypes.STRING(2047), allowNull: false },
+  name: { type: DataTypes.STRING, allowNull: false, defaultValue: '' },
+  description: { type: DataTypes.STRING(2047), allowNull: false, defaultValue: '' },
   seoTitle: { type: DataTypes.STRING, defaultValue: '', allowNull: true },
   seoDescription: { type: DataTypes.STRING, defaultValue: '', allowNull: true },
   characteristics: { type: DataTypes.STRING },
-  categoryCharacteristics: { type: DataTypes.JSON },
-  price: { type: DataTypes.INTEGER, allowNull: false },
-  discount: { type: DataTypes.INTEGER, allowNull: true },
+  categoryCharacteristics: { type: DataTypes.JSON, defaultValue: {} },
+  price: { type: DataTypes.INTEGER, defaultValue: 0 },
+  discount: { type: DataTypes.INTEGER, defaultValue: 0 },
   rate: { type: DataTypes.FLOAT, defaultValue: 0 },
   commentsCount: { type: DataTypes.INTEGER, defaultValue: 0 },
   productsCount: { type: DataTypes.INTEGER, defaultValue: 0 },
@@ -41,6 +41,7 @@ const Product = sequelize.define('product', {
   // amount: { type: DataTypes.INTEGER, defaultValue: 12 },
   sellCount: { type: DataTypes.INTEGER, defaultValue: 0 },
   inOrdersCount: { type: DataTypes.INTEGER, defaultValue: 0 },
+  skladCharacteristics: { type: DataTypes.JSON },
   // categoryId: {type: DataTypes.STRING},
 });
 
@@ -76,12 +77,14 @@ const Answer = sequelize.define('answer', {
 
 const Order = sequelize.define('order', {
   id: { type: DataTypes.INTEGER, primaryKey: true, autoIncrement: true },
-  price: { type: DataTypes.INTEGER, allowNull: false },
-  address: { type: DataTypes.STRING, allowNull: false },
-  delivery: { type: DataTypes.STRING, allowNull: false },
-  deliveryDays: { type: DataTypes.STRING, allowNull: false },
+  price: { type: DataTypes.INTEGER, defaultValue: 0 },
+  address: { type: DataTypes.STRING, defaultValue: '' },
+  delivery: { type: DataTypes.STRING, defaultValue: 'cdek' },
+  deliveryDays: { type: DataTypes.STRING, defaultValue: '7' },
   comment: { type: DataTypes.STRING },
-  status: { type: DataTypes.STRING, allowNull: false },
+  status: { type: DataTypes.STRING, defaultValue: 'В обработке' },
+  skladCharacteristics: { type: DataTypes.JSON, defaultValue: {} },
+  youKassaCharacteristics: { type: DataTypes.JSON, defaultValue: {} },
   // date: {type: DataTypes.DATE, allowNull: false},
   // personId: {type: DataTypes.STRING},
 });
