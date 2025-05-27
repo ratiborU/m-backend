@@ -14,6 +14,8 @@ import usedCouponRouter from "./UsedCouponRouter.js";
 import productHistoryRouter from "./ProductHistoryRouter.js";
 import loyalRouter from "./LoyalRouter.js";
 import recomendationRouter from "./RecomendationRouter.js";
+import moiSkladRouter from "./MoiSkladRouter.js";
+import youKassaRouter from "./YouKassaRouter.js";
 
 const router = new Router();
 
@@ -32,5 +34,7 @@ router.use('/usedCoupons', usedCouponRouter);
 router.use('/productsHistory', productHistoryRouter);
 router.use('/loyals', loyalRouter);
 router.use('/recomendations', recomendationRouter);
+router.use('/sklad', moiSkladRouter);
+router.use('/youkassa', youKassaRouter);
 
 export { router };

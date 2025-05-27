@@ -4,6 +4,8 @@ import OrderProductService from "./OrderProductService.js";
 import { UsedCoupon } from "../models/models.js";
 import MailService from "./MailService.js";
 import LoyalService from "./LoyalService.js";
+import MoiSkladService from "./MoiSkladService.js";
+
 
 class OrderService {
   async create(params) {
@@ -40,18 +42,25 @@ class OrderService {
     if (!!couponId) {
       await UsedCoupon.create({ couponId, personId })
     }
+
+    const newOrder = await Order.findByPk(order.id, { include: { model: OrderProduct, include: Product } })
+
+    await MoiSkladService.createOrder(newOrder);
+
     return order;
     return {}
   }
 
-  async getAll(limit, page) {
+  async getAll() {
     const orders = await Order.findAll({
       include: [
         { model: Person },
         { model: OrderProduct, include: Product }
       ]
     });
+    // console.log('hola');
     // const orders = await Order.findAll();
+    // console.log(orders);
     return orders;
   }
 
@@ -89,11 +98,13 @@ class OrderService {
       personId: personId || order.dataValues.personId
     }, {
       where: { id }
-    }
-    );
+    });
+
+    await MoiSkladService.updateOrderStatus(id, status)
+
     const person = await Person.findByPk(personId);
     if (person && order.dataValues.status != status && status != '') {
-      MailService.sendStatusInfo(person.dataValues.email, status);
+      // MailService.sendStatusInfo(person.dataValues.email, status);
     }
 
     const updatedOrder = await Order.findByPk(id);

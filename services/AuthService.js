@@ -49,6 +49,13 @@ class AuthService {
       activationLink
     });
 
+    const loyal = await Loyal.findOne({ where: { personId: person.dataValues.id } })
+    if (!loyal) {
+      const loyal = await Loyal.create({
+        personId: person.dataValues.id
+      })
+    }
+
     const tokens = await this.login(person.dataValues.email, password)
     return { tokens };
   }

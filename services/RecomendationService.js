@@ -45,8 +45,8 @@ const kg = {
   d: 0.50, // rate
 };
 const k = {
-  a: 0.85, // personal
-  b: 0.15, // general
+  a: 0.88, // personal
+  b: 0.12, // general
 };
 
 
@@ -167,27 +167,31 @@ class RecomendationService {
         id: 0,
         count: 0,
         inOrderCount: 0,
-        viewsCount: 4,
+        viewsCount: 0,
         isInFavorite: false,
-        rate: 3,
+        rate: 4,
         product: {
           dataValues: undefined
         }
       }; // product history
 
-      const p = ph.product.dataValues || {
-        sellCount: 0,
-        inOrdersCount: 0,
-        commentsCount: 0,
-        rate: 3,
-      }; // product
-      let kPersonal = kp.a * ph.count + kp.b * ph.inOrderCount + kp.c * ph.viewsCount + kp.d * Number(ph.isInFavorite) + kp.e * ph.rate;
+      // const p = ph.product.dataValues || {
+      //   sellCount: 0,
+      //   inOrdersCount: 0,
+      //   commentsCount: 0,
+      //   rate: 4,
+      // }; // product
+      const p = cur.dataValues;
+      // console.log(cur.dataValues.sellCount);
+      let kPersonal = kp.a * ph.count + kp.b * ph.inOrderCount + kp.c * ph.viewsCount + kp.d * Number(ph.isInFavorite) + kp.e * ((ph.rate || 4) - 3.9);
       if (ph.count == 0) {
-        kPersonal += kp.c * 8 * ph.viewsCount + kp.d * 5 * Number(ph.isInFavorite)
+        kPersonal += kp.c * 8 * ph.viewsCount + kp.d * 10 * Number(ph.isInFavorite)
       }
-      const kGeneral = kg.a * p.sellCount + kg.b * p.inOrdersCount + kg.c * p.commentsCount + kg.d * (3.9 - (p.rate || 0));
-      const kResult = k.a * kPersonal + k.b * kGeneral;
-      console.log(kPersonal, kGeneral);
+      const kGeneral = kg.a * p.sellCount + kg.b * p.inOrdersCount + kg.c * p.commentsCount + kg.d * ((p.rate || 4) - 3.9);
+      const kResult = k.a * kPersonal + k.b * Math.max(Math.log2(kGeneral + 2), 0);
+      // const kResult = k.a * kPersonal;
+      // console.log(ph.id, ph.count, ph.inOrderCount, ph.viewsCount, ph.isInFavorite, ph.rate);
+      console.log(p.id, kPersonal.toFixed(2), kGeneral.toFixed(2));
       acc[cur.dataValues.id] = kResult;
       return acc;
     }, {})
@@ -224,7 +228,7 @@ class RecomendationService {
     const recomendations = recomendationsEntries.map(x => productsByKeys[x[0]]);
     console.log(recomendations.map(x => ({
       productId: x.id,
-      name: x.name.slice(0, 12),
+      name: x.name,
       rec: productsRecomendations[x.id]
     })));
     return recomendations;
