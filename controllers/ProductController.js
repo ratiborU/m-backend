@@ -1,7 +1,7 @@
 import { Product } from "../models/models.js";
 import ApiError from "../error/ApiError.js";
 import jwt from "jsonwebtoken";
-
+import MoiSkladService from "../services/MoiSkladService.js";
 import ProductService from "../services/ProductService.js";
 import ProductHistoryService from "../services/ProductHistoryService.js";
 
@@ -27,6 +27,11 @@ class ProductController {
       if (req.headers.authorization) {
         const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.SECRET_KEY);
         const products = await ProductService.getAllByPersonId(limit, page, decoded.id);
+
+        if (decoded.role == "ADMIN") {
+          await MoiSkladService.updateProductsReserveFromApi();
+        }
+
         return res.json(products);
       } else {
         const products = await ProductService.getAll(limit, page);

@@ -4,6 +4,7 @@ import path from 'path';
 import { unlink } from 'fs';
 import { sequelize } from "../db.js";
 import ProductHistoryService from "./ProductHistoryService.js";
+import RecomendationService from "./RecomendationService.js";
 
 class ProductService {
   async create(params) {
@@ -55,6 +56,7 @@ class ProductService {
       // amount
     });
 
+    await RecomendationService.createOne(product.id);
     return product;
   }
 
@@ -207,6 +209,8 @@ class ProductService {
     }, {
       where: { id }
     });
+
+    await RecomendationService.createOne(id);
 
     const updatedProduct = await Product.findByPk(id, { include: Category })
     return updatedProduct;

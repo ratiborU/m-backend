@@ -96,19 +96,35 @@ class MoiSkladService {
 
     // return productNames;
 
-    for (const product of productNames) {
-      // сделать по коду
-      await Product.create({
-        name: product.name,
-        price: product.price,
-        categoryId: 1,
-        skladCharacteristics: {
-          id: product.skladId,
-          code: product.skladCode
-        }
-      })
 
+
+    for (const product of productNames) {
+      const productDB = await Product.findOne({ where: { name: product.name } })
+      // сделать по коду
+      if (productDB) {
+        await Product.update({
+          skladCharacteristics: {
+            id: product.skladId,
+            code: product.skladCode
+          }
+        }, {
+          where: { name: product.name }
+        })
+      } else {
+        await Product.create({
+          name: product.name,
+          price: product.price,
+          categoryId: 1,
+          skladCharacteristics: {
+            id: product.skladId,
+            code: product.skladCode
+          }
+        })
+      }
     }
+
+    await this.updateProductsReserveFromApi();
+
     return response
   }
 

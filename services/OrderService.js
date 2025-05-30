@@ -46,6 +46,7 @@ class OrderService {
     const newOrder = await Order.findByPk(order.id, { include: { model: OrderProduct, include: Product } })
 
     await MoiSkladService.createOrder(newOrder);
+    await MoiSkladService.updateProductsReserveFromApi();
 
     return order;
     return {}

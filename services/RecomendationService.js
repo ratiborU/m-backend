@@ -113,6 +113,24 @@ class RecomendationService {
         })
       }
     }
+
+    this.updateAll();
+    return {};
+  }
+
+  async createOne(productId) {
+    const product = await ProductTFIDF.findOne({ where: { productId } });
+    if (!product) {
+      await ProductTFIDF.create({
+        tfidfs: [{
+          term: '',
+          tfidf: 0.01
+        }],
+        productId
+      })
+    }
+
+    this.updateAll();
     return {};
   }
 
