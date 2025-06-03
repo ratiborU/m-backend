@@ -18,8 +18,8 @@ class YouKassaService {
 
     const createPayload = {
       amount: {
-        // value: Number(value).toFixed(2),
-        value: '2.00',
+        value: Number(value).toFixed(2) || '1.00',
+        // value: '2.00',
         currency: 'RUB'
       },
       capture: true,

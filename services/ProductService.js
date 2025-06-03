@@ -99,7 +99,7 @@ class ProductService {
       }
       delete products.rows[i].dataValues.basket_products;
     }
-
+    // console.log(products);
     return products;
   }
 
