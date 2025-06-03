@@ -45,8 +45,8 @@ const kg = {
   d: 0.50, // rate
 };
 const k = {
-  a: 0.88, // personal
-  b: 0.12, // general
+  a: 0.95, // personal
+  b: 0.05, // general
 };
 
 

@@ -26,7 +26,8 @@ class PersonService {
     page = page || 1;
     limit = limit || 1000;
     let offset = (page - 1) * limit;
-    const persons = await Person.findAndCountAll({ limit, offset });
+    const persons = await Person.findAndCountAll({ limit: 100000, offset: 0 });
+    persons.rows = persons.rows.filter(x => x.dataValues.firstName != '')
     return persons;
   }
 
