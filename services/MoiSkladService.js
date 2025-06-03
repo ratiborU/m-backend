@@ -17,7 +17,7 @@ class MoiSkladService {
     // const response = await fetch('https://api.moysklad.ru/api/remap/1.2/entity/product', {
     //   method: 'GET',
     //   headers: {
-    //     'Authorization': 'Bearer b67de4de255620497e444de89a69c5ae8d87381f'
+    //     'Authorization': 'Bearer 8efb6c1558827945e5daa02b9983a20bf312c1c9'
     //   }
     // }).then(data => {
     //   return data.json();
@@ -26,7 +26,7 @@ class MoiSkladService {
     // const response = await fetch('https://api.moysklad.ru/api/remap/1.2/entity/customerorder', {
     //   method: 'GET',
     //   headers: {
-    //     'Authorization': 'Bearer b67de4de255620497e444de89a69c5ae8d87381f'
+    //     'Authorization': 'Bearer 8efb6c1558827945e5daa02b9983a20bf312c1c9'
     //   }
     // }).then(data => {
     //   return data.json();
@@ -43,7 +43,7 @@ class MoiSkladService {
       method: 'GET',
       headers: {
         "Content-Type": "application/json",
-        'Authorization': 'Bearer b67de4de255620497e444de89a69c5ae8d87381f'
+        'Authorization': 'Bearer 8efb6c1558827945e5daa02b9983a20bf312c1c9'
       },
     }).then(data => {
       return data.json();
@@ -57,7 +57,7 @@ class MoiSkladService {
       method: 'PUT',
       headers: {
         "Content-Type": "application/json",
-        'Authorization': 'Bearer b67de4de255620497e444de89a69c5ae8d87381f'
+        'Authorization': 'Bearer 8efb6c1558827945e5daa02b9983a20bf312c1c9'
       },
       body: JSON.stringify({
         ...order,
@@ -81,7 +81,7 @@ class MoiSkladService {
     const response = await fetch('https://api.moysklad.ru/api/remap/1.2/entity/product', {
       method: 'GET',
       headers: {
-        'Authorization': 'Bearer b67de4de255620497e444de89a69c5ae8d87381f'
+        'Authorization': 'Bearer 8efb6c1558827945e5daa02b9983a20bf312c1c9'
       }
     }).then(data => {
       return data.json();
@@ -132,11 +132,13 @@ class MoiSkladService {
     const response = await fetch('https://api.moysklad.ru/api/remap/1.2/report/stock/all', {
       method: 'GET',
       headers: {
-        'Authorization': 'Bearer b67de4de255620497e444de89a69c5ae8d87381f'
+        'Authorization': 'Bearer 8efb6c1558827945e5daa02b9983a20bf312c1c9'
       }
     }).then(data => {
       return data.json();
     })
+
+
 
     const productReserveByCode = response.rows
       .map(x => ({
@@ -148,16 +150,22 @@ class MoiSkladService {
         return acc;
       }, {})
 
+    // console.log(productReserveByCode);
+
     const products = await Product.findAll();
-    console.log(products);
+    // console.log(products);
 
     for (const product of products) {
-      await Product.update({
-        productsCount: productReserveByCode[product.skladCharacteristics.code]
-      }, {
-        where: { id: product.id }
-      })
-      console.log(productReserveByCode[product.skladCharacteristics.code])
+      // console.log(product.skladCharacteristics)
+      if (product.skladCharacteristics) {
+        await Product.update({
+          productsCount: productReserveByCode[product.skladCharacteristics.code]
+        }, {
+          where: { id: product.id }
+        })
+      }
+
+      // console.log(productReserveByCode[product.skladCharacteristics.code])
     }
 
     return productReserveByCode
@@ -169,7 +177,7 @@ class MoiSkladService {
       method: 'POST',
       headers: {
         "Content-Type": "application/json",
-        'Authorization': 'Bearer b67de4de255620497e444de89a69c5ae8d87381f'
+        'Authorization': 'Bearer 8efb6c1558827945e5daa02b9983a20bf312c1c9'
       },
       body: JSON.stringify({
         "organization": {
@@ -226,7 +234,7 @@ class MoiSkladService {
       method: 'GET',
       headers: {
         "Content-Type": "application/json",
-        'Authorization': 'Bearer b67de4de255620497e444de89a69c5ae8d87381f'
+        'Authorization': 'Bearer 8efb6c1558827945e5daa02b9983a20bf312c1c9'
       },
     }).then(data => {
       return data.json();
@@ -236,7 +244,7 @@ class MoiSkladService {
       method: 'PUT',
       headers: {
         "Content-Type": "application/json",
-        'Authorization': 'Bearer b67de4de255620497e444de89a69c5ae8d87381f'
+        'Authorization': 'Bearer 8efb6c1558827945e5daa02b9983a20bf312c1c9'
       },
       body: JSON.stringify({
         ...order,

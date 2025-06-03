@@ -29,7 +29,11 @@ class ProductController {
         const products = await ProductService.getAllByPersonId(limit, page, decoded.id);
 
         if (decoded.role == "ADMIN") {
-          await MoiSkladService.updateProductsReserveFromApi();
+          try {
+            await MoiSkladService.updateProductsReserveFromApi();
+          } catch (error) {
+            console.log('no update sklad');
+          }
         }
 
         return res.json(products);
