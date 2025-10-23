@@ -24,29 +24,29 @@ class OrderService {
       delivery,
       deliveryDays,
       personId,
-      couponId,
-      usePoints = false
+      // couponId,
+      // usePoints = false
     } = params;
 
-    const loyal = await LoyalService.getOneByPersonId(personId)
+    // const loyal = await LoyalService.getOneByPersonId(personId)
     let finalPrice = price;
-    if (usePoints) {
-      const maxPoints = Math.min(Math.floor(price * 0.30), loyal.points);
-      finalPrice = price - maxPoints;
-      await LoyalService.removePoints(personId, maxPoints)
-    }
-    await LoyalService.addPoints(personId, Math.floor(finalPrice * loyal.cashback / 100));
-    await LoyalService.addTotal(personId, finalPrice)
+    // if (usePoints) {
+    //   const maxPoints = Math.min(Math.floor(price * 0.30), loyal.points);
+    //   finalPrice = price - maxPoints;
+    //   await LoyalService.removePoints(personId, maxPoints)
+    // }
+    // await LoyalService.addPoints(personId, Math.floor(finalPrice * loyal.cashback / 100));
+    // await LoyalService.addTotal(personId, finalPrice)
     const order = await Order.create({ price: finalPrice, address, comment, status, delivery, deliveryDays, personId });
     await OrderProductService.createFromPersonBasket(personId, order.dataValues.id);
-    if (!!couponId) {
-      await UsedCoupon.create({ couponId, personId })
-    }
+    // if (!!couponId) {
+    //   await UsedCoupon.create({ couponId, personId })
+    // }
 
-    const newOrder = await Order.findByPk(order.id, { include: { model: OrderProduct, include: Product } })
+    // const newOrder = await Order.findByPk(order.id, { include: { model: OrderProduct, include: Product } })
 
-    await MoiSkladService.createOrder(newOrder);
-    await MoiSkladService.updateProductsReserveFromApi();
+    // await MoiSkladService.createOrder(newOrder);
+    // await MoiSkladService.updateProductsReserveFromApi();
 
     return order;
     return {}
@@ -101,7 +101,7 @@ class OrderService {
       where: { id }
     });
 
-    await MoiSkladService.updateOrderStatus(id, status)
+    // await MoiSkladService.updateOrderStatus(id, status)
 
     const person = await Person.findByPk(personId);
     if (person && order.dataValues.status != status && status != '') {

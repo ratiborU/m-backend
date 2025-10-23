@@ -29,12 +29,12 @@ router.use('/orders', orderRouter);
 router.use('/persons', personRouter);
 router.use('/products', productRouter);
 router.use('/categories', categoryRouter);
-router.use('/coupons', couponRouter);
-router.use('/usedCoupons', usedCouponRouter);
+// router.use('/coupons', couponRouter);
+// router.use('/usedCoupons', usedCouponRouter);
 router.use('/productsHistory', productHistoryRouter);
-router.use('/loyals', loyalRouter);
+// router.use('/loyals', loyalRouter);
 router.use('/recomendations', recomendationRouter);
-router.use('/sklad', moiSkladRouter);
+// router.use('/sklad', moiSkladRouter);
 router.use('/youkassa', youKassaRouter);
 
 export { router };

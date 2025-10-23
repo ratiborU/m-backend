@@ -22,13 +22,13 @@ class CommentService {
       await ProductHistory.create({ personId, productId, rate })
     }
     const comment = await Comment.create({ text, rate, personId, productId });
-    if (text.split(' ').length > 10) {
-      await LoyalService.addPoints(personId, 50);
-    } else if (text.split(' ').length > 1) {
-      await LoyalService.addPoints(personId, 30)
-    } else {
-      await LoyalService.addPoints(personId, 20)
-    }
+    // if (text.split(' ').length > 10) {
+    //   await LoyalService.addPoints(personId, 50);
+    // } else if (text.split(' ').length > 1) {
+    //   await LoyalService.addPoints(personId, 30)
+    // } else {
+    //   await LoyalService.addPoints(personId, 20)
+    // }
 
     await ProductService.addRate(productId, rate);
     return comment;

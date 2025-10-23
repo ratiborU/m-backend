@@ -1,4 +1,4 @@
-import { Product, Category, BasketProduct, FavoriteProduct } from "../models/models.js";
+import { Product, Category, BasketProduct, FavoriteProduct, OrderProduct, Order } from "../models/models.js";
 import { v4 as uuidv4 } from 'uuid';
 import path from 'path';
 import { unlink } from 'fs';
@@ -65,6 +65,9 @@ class ProductService {
     limit = limit || 1000;
     let offset = (page - 1) * limit;
     const products = await Product.findAndCountAll({ limit, offset, include: Category });
+    console.log('hola');
+    console.log('hola');
+    console.log('hola');
     return products;
   }
 
@@ -72,6 +75,7 @@ class ProductService {
     page = page || 1;
     limit = limit || 1000;
     let offset = (page - 1) * limit;
+
     const products = await Product.findAndCountAll(
       {
         // limit, offset,
@@ -83,6 +87,7 @@ class ProductService {
             where: { personId: id },
             required: false,
           },
+          { model: OrderProduct, include: Order },
         ],
         order: [['id', 'DESC']]
       }
@@ -98,6 +103,14 @@ class ProductService {
         products.rows[i].dataValues.basketProduct = products.rows[i].dataValues.basket_products[0].dataValues;
       }
       delete products.rows[i].dataValues.basket_products;
+
+      if (products.rows[i].dataValues.order_products.length > 0) {
+        products.rows[i].dataValues.orderProductsCount =
+          products.rows[i].dataValues.order_products
+            .filter(x => x.order.dataValues.status == "Подтвержден")
+            .reduce((acc, cur) => acc + cur.dataValues.count, 0);
+      }
+      delete products.rows[i].dataValues.order_products;
     }
     // console.log(products);
     return products;
