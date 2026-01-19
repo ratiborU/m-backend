@@ -165,6 +165,10 @@ class RecomendationService {
   async getRecomendationByPersonId(personId) {
     // Приведение массива в объект с ключами в виде id продукта
     // const products2 = await Product.findAll();
+    if (!personId) {
+      const products4 = await ProductService.getAll();
+      return products4.slice(0, 4);
+    }
     const products3 = await ProductService.getAllByPersonId(1000, 1, personId);
     const products = products3.rows;
     const productsByKeys = products.reduce((acc, product) => {

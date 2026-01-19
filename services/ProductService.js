@@ -65,9 +65,6 @@ class ProductService {
     limit = limit || 1000;
     let offset = (page - 1) * limit;
     const products = await Product.findAndCountAll({ limit, offset, include: Category });
-    console.log('hola');
-    console.log('hola');
-    console.log('hola');
     return products;
   }
 
@@ -188,7 +185,6 @@ class ProductService {
     const product = await Product.findByPk(id);
 
     let fileName = product.dataValues.mainImage;
-    console.log(file);
     if (file) {
       fileName = uuidv4() + ".jpg";
       await file.mv(path.resolve('static', fileName));
@@ -198,32 +194,28 @@ class ProductService {
         });
       }
     }
-    console.log('fileName');
 
     await Product.update({
-      name: name || product.name,
-      description: description || product.description,
-      seoTitle: seoTitle || product.seoTitle,
-      seoDescription: seoDescription || product.seoDescription,
-      characteristics: characteristics || product.characteristics,
-      price: price || product.price,
-      discount: discount || product.discount,
-      rate: rate || product.rate,
-      commentsCount: commentsCount || product.commentsCount,
-      productsCount: productsCount || product.productsCount,
-      categoryCharacteristics: categoryCharacteristics ? JSON.parse(categoryCharacteristics) : product.categoryCharacteristics,
-      categoryId: categoryId || product.categoryId,
+      name: name || product.dataValues.name,
+      description: description || product.dataValues.description,
+      seoTitle: seoTitle || product.dataValues.seoTitle,
+      seoDescription: seoDescription || product.dataValues.seoDescription,
+      characteristics: characteristics || product.dataValues.characteristics,
+      price: price || product.dataValues.price,
+      discount: discount || product.dataValues.discount,
+      rate: rate || product.dataValues.rate,
+      commentsCount: commentsCount || product.dataValues.commentsCount,
+      productsCount: productsCount || product.dataValues.productsCount,
+      categoryCharacteristics: categoryCharacteristics ? JSON.parse(categoryCharacteristics) : product.dataValues.categoryCharacteristics,
+      categoryId: categoryId || product.dataValues.categoryId,
       mainImage: fileName,
-      // stone: stone || product.stone,
-      // size: size || product.size,
-      // material: material || product.material,
-      // fasteningType: fasteningType || product.fasteningType,
-      // amount: amount || product.amount
     }, {
       where: { id }
     });
 
-    await RecomendationService.createOne(id);
+    // await RecomendationService.createOne(id);
+
+    console.log('hola');
 
     const updatedProduct = await Product.findByPk(id, { include: Category })
     return updatedProduct;

@@ -22,20 +22,9 @@ class ProductController {
   async getAll(req, res, next) {
     try {
       let { limit, page } = req.query;
-      // нужно не просто проверить на существование 
-      // а проверить на правильность декодирования
-      if (req.headers.authorization) {
+      if (req.headers.authorization && req.headers.authorization != 'Bearer undefined') {
         const decoded = jwt.verify(req.headers.authorization.split(' ')[1], process.env.SECRET_KEY);
         const products = await ProductService.getAllByPersonId(limit, page, decoded.id);
-
-        if (decoded.role == "ADMIN") {
-          try {
-            await MoiSkladService.updateProductsReserveFromApi();
-          } catch (error) {
-            console.log('no update sklad');
-          }
-        }
-
         return res.json(products);
       } else {
         const products = await ProductService.getAll(limit, page);
